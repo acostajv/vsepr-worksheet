@@ -1359,22 +1359,18 @@ function downloadWork() {
   // ── Bake canvas drawings as inline images ──
   molecules.forEach(m => {
     const canvas = document.getElementById('canvas-' + m.id);
-    const cloneWrap = clone.querySelector('#canvas-' + m.id)?.closest('.canvas-wrap');
-    if (!canvas || !cloneWrap) return;
+    const cloneCanvas = clone.querySelector('#canvas-' + m.id);
+    if (!canvas || !cloneCanvas) return;
     try {
       const dataUrl = canvas.toDataURL('image/png');
-      // Replace canvas with a static img in the clone
-      const cloneCanvas = cloneWrap.querySelector('#canvas-' + m.id);
-      if (cloneCanvas) {
-        const img = document.createElement('img');
-        img.src = dataUrl;
-        img.style.cssText = cloneCanvas.style.cssText;
-        img.style.display = 'block';
-        img.style.width = '100%';
-        img.style.height = cloneCanvas.height + 'px';
-        img.style.borderRadius = '4px';
-        cloneCanvas.replaceWith(img);
-      }
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      img.setAttribute('data-mol', m.id);
+      img.style.display = 'block';
+      img.style.width = '100%';
+      img.style.height = canvas.height + 'px';
+      img.style.borderRadius = '4px';
+      cloneCanvas.replaceWith(img);
     } catch(e) {}
   });
 
