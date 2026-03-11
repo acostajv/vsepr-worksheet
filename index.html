@@ -43,6 +43,8 @@
   .reset-btn:hover { border-color:rgba(245,166,35,0.7); color:var(--amber); }
   .download-btn { background:var(--teal); border:none; color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:700; padding:5px 12px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; letter-spacing:0.03em; }
   .download-btn:hover { background:#009e8a; }
+  .import-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .import-btn:hover { border-color:rgba(0,184,160,0.7); color:var(--teal); }
   .progress-label { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.1em; }
   .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 99px; height: 4px; width: 100px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: linear-gradient(to right, var(--teal), var(--amber)); border-radius: 99px; transition: width 0.4s; width: 0%; }
@@ -432,6 +434,8 @@
         <span class="save-indicator" id="saveIndicator">💾 Saved</span>
       </div>
       <button class="reset-btn" onclick="confirmReset()" title="Clear all answers and start over">↺ Reset</button>
+      <button class="import-btn" onclick="document.getElementById('importFileInput').click()" title="Import answers from a previously submitted worksheet">⬆ Import Previous</button>
+      <input type="file" id="importFileInput" accept=".html" style="display:none" onchange="importFromFile(this)"/>
       <button class="download-btn" onclick="downloadWork()" title="Download your completed worksheet">⬇ Submit Work</button>
     </div>
   </div>
@@ -1354,6 +1358,8 @@ function downloadWork() {
   // ── Strip the download/reset buttons and save indicator from the snapshot ──
   clone.querySelector('.download-btn')?.remove();
   clone.querySelector('.reset-btn')?.remove();
+  clone.querySelector('.import-btn')?.remove();
+  clone.querySelector('#importFileInput')?.remove();
   clone.querySelector('.save-indicator')?.remove();
 
   // ── Add a submission banner at the top ──
@@ -1371,6 +1377,131 @@ function downloadWork() {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════
+// IMPORT FROM PREVIOUS SUBMISSION
+// ══════════════════════════════════════════════════════
+function importFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be chosen again if needed
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const html = e.target.result;
+    const parser = new DOMParser();
+    const oldDoc = parser.parseFromString(html, 'text/html');
+
+    let imported = 0;
+    let skipped  = 0;
+
+    // ── 1. Text inputs WITH an id ────────────────────────────────────────
+    // Submitted files bake values as value="" attributes via setAttribute,
+    // so getAttribute('value') is the reliable read path.
+    oldDoc.querySelectorAll('input[type="text"][id]').forEach(oldEl => {
+      const newEl = document.getElementById(oldEl.id);
+      if (!newEl) { skipped++; return; }
+      const val = oldEl.getAttribute('value') || '';
+      if (val) { newEl.value = val; imported++; }
+    });
+
+    // ── 2. Text inputs WITHOUT an id (positional match) ──────────────────
+    // e.g. S6 SO₂ / SF₄ student-fill rows — no id, matched by position.
+    const oldNoIdInputs = Array.from(oldDoc.querySelectorAll('input[type="text"]:not([id])'));
+    const newNoIdInputs = Array.from(document.querySelectorAll('input[type="text"]:not([id])'));
+    oldNoIdInputs.forEach((oldEl, i) => {
+      if (!newNoIdInputs[i]) { skipped++; return; }
+      const val = oldEl.getAttribute('value') || '';
+      if (val) { newNoIdInputs[i].value = val; imported++; }
+    });
+
+    // ── 3. Meta inputs (name / date / period) — positional ───────────────
+    const oldMeta = Array.from(oldDoc.querySelectorAll('.meta-input'));
+    const newMeta = Array.from(document.querySelectorAll('.meta-input'));
+    oldMeta.forEach((oldEl, i) => {
+      if (!newMeta[i]) return;
+      const val = oldEl.getAttribute('value') || '';
+      if (val) { newMeta[i].value = val; imported++; }
+    });
+
+    // ── 4. Textareas — positional ─────────────────────────────────────────
+    // Submitted files bake textarea content as textContent (el.textContent = val).
+    // .value won't work on a DOMParser result — textContent is correct.
+    const oldTAs = Array.from(oldDoc.querySelectorAll('textarea'));
+    const newTAs = Array.from(document.querySelectorAll('textarea'));
+    oldTAs.forEach((oldEl, i) => {
+      if (!newTAs[i]) { skipped++; return; }
+      const val = oldEl.textContent?.trim() || '';
+      if (val) { newTAs[i].value = val; imported++; }
+    });
+
+    // ── 5. Radio buttons — index-based per name group ─────────────────────
+    // Radios have no value attribute in this worksheet, so we match by
+    // position within each named group. Submitted files bake the checked
+    // radio via setAttribute('checked','checked').
+    const seenNames = new Set();
+    oldDoc.querySelectorAll('input[type="radio"]').forEach(oldEl => {
+      const name = oldEl.getAttribute('name');
+      if (!name || seenNames.has(name)) return; // process each group once
+      seenNames.add(name);
+      const oldGroup = Array.from(oldDoc.querySelectorAll(`input[type="radio"][name="${name}"]`));
+      const checkedIdx = oldGroup.findIndex(r => r.hasAttribute('checked'));
+      if (checkedIdx === -1) return;
+      const newGroup = Array.from(document.querySelectorAll(`input[type="radio"][name="${name}"]`));
+      if (newGroup[checkedIdx]) { newGroup[checkedIdx].checked = true; imported++; }
+    });
+
+    // ── 6. Rank list (Q2.5 drag-to-rank) — match items by text, reorder ──
+    const oldRankList = oldDoc.getElementById('rankList');
+    const newRankList = document.getElementById('rankList');
+    if (oldRankList && newRankList) {
+      const clean = el => el.textContent.replace(/[⠿\d]/g,'').trim().toLowerCase();
+      const oldItems = Array.from(oldRankList.querySelectorAll('.rank-item'));
+      const newItems = Array.from(newRankList.querySelectorAll('.rank-item'));
+      const ordered = oldItems.map(o => newItems.find(n => clean(n) === clean(o))).filter(Boolean);
+      if (ordered.length === newItems.length) {
+        ordered.forEach(item => newRankList.appendChild(item));
+        imported++;
+      }
+    }
+
+    // ── 7. Canvas drawings — async, must finish before saveAll ───────────
+    // Submitted files replace <canvas> with <img data-mol="id" src="data:...">.
+    // We load each image, draw it onto the live canvas, then when ALL are
+    // done we call saveAll() so the canvas dataURLs land in localStorage.
+    const canvasImgs = Array.from(oldDoc.querySelectorAll('img[data-mol]'))
+      .filter(img => (img.getAttribute('src') || '').startsWith('data:image'));
+
+    const canvasPromises = canvasImgs.map(img => new Promise(resolve => {
+      const molId = img.getAttribute('data-mol');
+      const canvas = document.getElementById('canvas-' + molId);
+      if (!canvas) { skipped++; resolve(0); return; }
+      const image = new Image();
+      image.onload = () => {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(1); // 1 canvas imported
+      };
+      image.onerror = () => resolve(0);
+      image.src = img.getAttribute('src');
+    }));
+
+    // ── 8. After all canvases are painted, save and confirm ───────────────
+    Promise.all(canvasPromises).then(canvasResults => {
+      const canvasCount = canvasResults.reduce((s, v) => s + v, 0);
+      saveAll(); // now includes freshly-drawn canvas data
+      const total = imported + canvasCount;
+      const msg = `✓ Imported ${total} answer${total !== 1 ? 's' : ''}` +
+        (canvasCount ? ` (including ${canvasCount} drawing${canvasCount !== 1 ? 's' : ''})` : '') +
+        ' from your previous submission.' +
+        (skipped ? `\n${skipped} field${skipped !== 1 ? 's' : ''} were skipped (not in this version).` : '') +
+        '\n\nYour work has been saved. Continue from where you left off.';
+      alert(msg);
+    });
+  };
+  reader.readAsText(file);
 }
 
 // Attach autosave to all input events
