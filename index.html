@@ -45,6 +45,24 @@
   .download-btn:hover { background:#009e8a; }
   .import-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
   .import-btn:hover { border-color:rgba(0,184,160,0.7); color:var(--teal); }
+  .savefile-btn { background:none; border:1px solid rgba(0,184,160,0.5); color:var(--teal); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .savefile-btn:hover { background:rgba(0,184,160,0.15); border-color:var(--teal); }
+
+  /* ── Chromebook / no-save-data banner ── */
+  #chromebookBanner { display:none; background:#1a1200; border-bottom:3px solid var(--amber); padding:12px 28px; gap:16px; align-items:center; }
+  #chromebookBanner.visible { display:flex; }
+  .cb-icon { font-size:26px; flex-shrink:0; }
+  .cb-text { flex:1; }
+  .cb-title { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--amber); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px; }
+  .cb-body { font-size:12px; color:rgba(255,255,255,0.82); line-height:1.5; }
+  .cb-body strong { color:#fff; }
+  .cb-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; align-items:center; }
+  .cb-load-btn { background:var(--amber); border:none; color:#1a1200; font-family:'DM Mono',monospace; font-size:11px; font-weight:700; padding:7px 16px; border-radius:5px; cursor:pointer; white-space:nowrap; letter-spacing:0.03em; }
+  .cb-load-btn:hover { background:#f5c842; }
+  .cb-dismiss { background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.5); font-family:'DM Mono',monospace; font-size:10px; padding:6px 12px; border-radius:5px; cursor:pointer; white-space:nowrap; }
+  .cb-dismiss:hover { border-color:rgba(255,255,255,0.4); color:rgba(255,255,255,0.75); }
+  .loadfile-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .loadfile-btn:hover { border-color:rgba(0,184,160,0.7); color:var(--teal); }
   .progress-label { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.1em; }
   .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 99px; height: 4px; width: 100px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: linear-gradient(to right, var(--teal), var(--amber)); border-radius: 99px; transition: width 0.4s; width: 0%; }
@@ -434,12 +452,29 @@
         <span class="save-indicator" id="saveIndicator">💾 Saved</span>
       </div>
       <button class="reset-btn" onclick="confirmReset()" title="Clear all answers and start over">↺ Reset</button>
+      <button class="loadfile-btn" onclick="document.getElementById('loadProgressInput').click()" title="Load progress from a save file — use this on Chromebooks to restore your work from a previous session">⬆ Load Progress</button>
+      <input type="file" id="loadProgressInput" accept=".json" style="display:none" onchange="loadProgressFromFile(this)"/>
+      <button class="savefile-btn" onclick="saveProgressToFile()" title="Save your progress to a file — save it to Google Drive so you can load it next class">⬇ Save Progress</button>
       <button class="import-btn" onclick="document.getElementById('importFileInput').click()" title="Import answers from a previously submitted worksheet">⬆ Import Previous</button>
       <input type="file" id="importFileInput" accept=".html" style="display:none" onchange="importFromFile(this)"/>
       <button class="download-btn" onclick="downloadWork()" title="Download your completed worksheet">⬇ Submit Work</button>
     </div>
   </div>
 </header>
+
+<!-- ── Chromebook / lost-progress banner ──────────────────────────────── -->
+<div id="chromebookBanner" role="alert">
+  <span class="cb-icon">💾</span>
+  <div class="cb-text">
+    <div class="cb-title">No saved progress found</div>
+    <div class="cb-body">If you worked on this before, your browser may have cleared your saved answers (this is common on <strong>school Chromebooks</strong>). If you saved a <strong>progress file (.json)</strong> to Google Drive last time, load it now to restore your work.</div>
+  </div>
+  <div class="cb-actions">
+    <input type="file" id="bannerLoadInput" accept=".json" style="display:none" onchange="loadProgressFromFile(this)"/>
+    <button class="cb-load-btn" onclick="document.getElementById('bannerLoadInput').click()">⬆ Load Progress File</button>
+    <button class="cb-dismiss" onclick="dismissBanner()">Starting Fresh ✕</button>
+  </div>
+</div>
 
 <div class="workspace">
 
@@ -1375,6 +1410,9 @@ function downloadWork() {
   clone.querySelector('.reset-btn')?.remove();
   clone.querySelector('.import-btn')?.remove();
   clone.querySelector('#importFileInput')?.remove();
+  clone.querySelector('.savefile-btn')?.remove();
+  clone.querySelector('.loadfile-btn')?.remove();
+  clone.querySelector('#loadProgressInput')?.remove();
   clone.querySelector('.save-indicator')?.remove();
 
   // ── Add a submission banner at the top ──
@@ -1395,8 +1433,62 @@ function downloadWork() {
 }
 
 // ══════════════════════════════════════════════════════
-// IMPORT FROM PREVIOUS SUBMISSION
+// SAVE / LOAD PROGRESS (for Chromebooks & cross-device)
 // ══════════════════════════════════════════════════════
+
+// Save the full localStorage save object as a .json file.
+// Students save this to Google Drive and reload it next class.
+function saveProgressToFile() {
+  saveAll(); // make sure everything is current first
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw || raw === '{}') {
+    alert('Nothing to save yet — fill in some answers first.');
+    return;
+  }
+  const nameInput = document.querySelector('.meta-input');
+  const studentName = nameInput && nameInput.value.trim()
+    ? nameInput.value.trim().replace(/[^a-zA-Z0-9 _-]/g, '').replace(/\s+/g, '_')
+    : 'student';
+  const blob = new Blob([raw], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `VSEPR_Progress_${studentName}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Load a .json progress file back into localStorage and restore the page.
+// Handles Chromebooks wiping localStorage between sign-outs.
+function loadProgressFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch(err) {
+      alert('That file doesn\'t look like a valid progress save. Make sure you\'re loading a file that ends in .json downloaded from this worksheet.');
+      return;
+    }
+    // Validate it looks like our save data (should have at least one known key pattern)
+    const keys = Object.keys(data);
+    const looksValid = keys.some(k => k.startsWith('pos:') || k.startsWith('canvas:') || k.startsWith('radio:') || k.startsWith('meta:'));
+    if (!looksValid) {
+      alert('This file doesn\'t appear to be a VSEPR progress save. No answers were loaded.');
+      return;
+    }
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    // Reload so restoreAll() cleanly re-populates every field
+    location.reload();
+  };
+  reader.readAsText(file);
+}
+
+
 function importFromFile(input) {
   const file = input.files[0];
   if (!file) return;
@@ -1527,8 +1619,40 @@ document.addEventListener('change', saveAll);
 const _origEndDraw = endDraw;
 endDraw = function(id) { _origEndDraw(id); saveAll(); };
 
+// ── Chromebook banner ──────────────────────────────────────────────────────
+// Show when there is no saved data in localStorage (e.g. after Chromebook
+// signs out and wipes the session). Dismissed when user loads a file or
+// explicitly clicks "Starting Fresh".
+function showBanner() {
+  document.getElementById('chromebookBanner').classList.add('visible');
+}
+function dismissBanner() {
+  document.getElementById('chromebookBanner').classList.remove('visible');
+}
+
+// ── beforeunload warning ───────────────────────────────────────────────────
+// Remind students to save their progress file before closing the tab.
+// Only fires if there is actually saved data worth keeping.
+window.addEventListener('beforeunload', function(e) {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw || raw === '{}') return; // nothing to warn about
+  // Modern browsers show a generic message; the string below is a fallback.
+  e.preventDefault();
+  e.returnValue = 'Before you close: did you save your progress file (⬇ Save Progress) to Google Drive? Your work may not be here next time on a school Chromebook.';
+});
+
 // Restore on load
 restoreAll();
+
+// Show banner if nothing was restored from localStorage
+(function checkForSavedData() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch(e) {}
+  const hasData = data && Object.keys(data).some(k =>
+    k.startsWith('pos:') || k.startsWith('canvas:') || k.startsWith('radio:') || k.startsWith('meta:') || k.length > 3
+  );
+  if (!hasData) showBanner();
+})();
 </script>
 <!-- ══════════ LEWIS GUIDE SIDE DRAWER ══════════ -->
 <button class="guide-drawer-tab" id="guideTab" onclick="toggleGuideDrawer()" title="Lewis Structure Guide">
