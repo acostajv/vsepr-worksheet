@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VSEPR Discovery Worksheet</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1e35;
+    --teal: #00b8a0;
+    --teal-light: #e0f7f4;
+    --amber: #f5a623;
+    --amber-light: #fff8ec;
+    --purple: #7c5cbf;
+    --purple-light: #f3eeff;
+    --cream: #faf7f2;
+    --paper: #fff9f0;
+    --ink: #1a1a2e;
+    --muted: #6b7280;
+    --rule: #d4c9b8;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  header { background: var(--navy); color: white; display: flex; align-items: stretch; min-height: 80px; position: sticky; top: 0; z-index: 200; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .header-accent { width: 8px; background: linear-gradient(to bottom, var(--teal), var(--amber)); flex-shrink: 0; }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 0 28px; flex: 1; gap: 20px; }
+  .header-left { display: flex; flex-direction: column; gap: 2px; }
+  .header-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--teal); }
+  .header-title { font-family: 'DM Serif Display', serif; font-size: 22px; line-height: 1.1; }
+  .header-meta { display: flex; gap: 24px; align-items: center; }
+  .meta-field { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; }
+  .meta-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); }
+  .meta-input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); color: white; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 2px 4px; width: 140px; outline: none; }
+  .meta-input:focus { border-bottom-color: var(--teal); }
+  .meta-input::placeholder { color: rgba(255,255,255,0.25); }
+  .progress-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .save-indicator { font-family:'DM Mono',monospace; font-size:10px; color:#00b8a0; opacity:0; transition:opacity 0.5s; white-space:nowrap; }
+  .save-indicator.visible { opacity:1; }
+  .reset-btn { background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.55); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .reset-btn:hover { border-color:rgba(245,166,35,0.7); color:var(--amber); }
+  .download-btn { background:var(--teal); border:none; color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:700; padding:5px 12px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; letter-spacing:0.03em; }
+  .download-btn:hover { background:#009e8a; }
+  .import-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .import-btn:hover { border-color:rgba(0,184,160,0.7); color:var(--teal); }
+  .savefile-btn { background:none; border:1px solid rgba(0,184,160,0.5); color:var(--teal); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .savefile-btn:hover { background:rgba(0,184,160,0.15); border-color:var(--teal); }
+
+  /* ── Chromebook / no-save-data banner ── */
+  #chromebookBanner { display:none; background:#1a1200; border-bottom:3px solid var(--amber); padding:12px 28px; gap:16px; align-items:center; }
+  #chromebookBanner.visible { display:flex; }
+  .cb-icon { font-size:26px; flex-shrink:0; }
+  .cb-text { flex:1; }
+  .cb-title { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--amber); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px; }
+  .cb-body { font-size:12px; color:rgba(255,255,255,0.82); line-height:1.5; }
+  .cb-body strong { color:#fff; }
+  .cb-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; align-items:center; }
+  .cb-load-btn { background:var(--amber); border:none; color:#1a1200; font-family:'DM Mono',monospace; font-size:11px; font-weight:700; padding:7px 16px; border-radius:5px; cursor:pointer; white-space:nowrap; letter-spacing:0.03em; }
+  .cb-load-btn:hover { background:#f5c842; }
+  .cb-dismiss { background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.5); font-family:'DM Mono',monospace; font-size:10px; padding:6px 12px; border-radius:5px; cursor:pointer; white-space:nowrap; }
+  .cb-dismiss:hover { border-color:rgba(255,255,255,0.4); color:rgba(255,255,255,0.75); }
+  .loadfile-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
+  .loadfile-btn:hover { border-color:rgba(0,184,160,0.7); color:var(--teal); }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.1em; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 99px; height: 4px; width: 100px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(to right, var(--teal), var(--amber)); border-radius: 99px; transition: width 0.4s; width: 0%; }
+
+  .workspace { display: grid; grid-template-columns: 340px 1fr; align-items: start; }
+
+  .tool-panel { background: #111827; display: flex; flex-direction: column; border-right: 3px solid var(--teal); position: sticky; top: 80px; height: calc(100vh - 80px); overflow: hidden; }
+  .tool-header { background: rgba(0,184,160,0.12); border-bottom: 1px solid rgba(0,184,160,0.25); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .tool-title { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--teal); letter-spacing: 0.1em; text-transform: uppercase; }
+  .guide-panel { flex: 1; overflow-y: auto; padding: 16px 16px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+  .tool-card { border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .tool-card.phet { background: linear-gradient(135deg, rgba(245,166,35,0.14), rgba(245,166,35,0.05)); border: 1.5px solid rgba(245,166,35,0.35); }
+  .tool-card-top { display: flex; align-items: center; gap: 10px; }
+  .tool-icon { font-size: 26px; line-height: 1; }
+  .tool-card-name { display: flex; flex-direction: column; gap: 2px; }
+  .tool-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .tool-card.phet .tool-tag { color: var(--amber); }
+  .tool-card-title { font-family: 'DM Serif Display', serif; font-size: 14px; color: white; }
+  .tool-desc { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+  .tool-launch { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-weight: 700; font-size: 12px; padding: 7px 14px; border-radius: 5px; align-self: flex-start; transition: transform 0.15s, opacity 0.15s; }
+  .tool-card.phet .tool-launch { background: var(--amber); color: var(--navy); }
+  .tool-launch:hover { transform: translateY(-1px); opacity: 0.88; }
+
+  .workflow-wrap { display: flex; flex-direction: column; gap: 8px; }
+  .workflow-heading { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--teal); letter-spacing: 0.14em; text-transform: uppercase; border-bottom: 1px solid rgba(0,184,160,0.2); padding-bottom: 6px; }
+  .wf-step { display: flex; gap: 10px; align-items: flex-start; }
+  .wf-badge { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; font-family: 'DM Mono', monospace; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+  .wf-badge.t { background: rgba(0,184,160,0.15); border: 1px solid var(--teal); color: var(--teal); }
+  .wf-badge.a { background: rgba(245,166,35,0.15); border: 1px solid var(--amber); color: var(--amber); }
+  .wf-text { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.55; }
+  .wf-text strong { color: white; }
+  .tip-box { border-left: 3px solid var(--amber); border-radius: 0 6px 6px 0; padding: 10px 12px; font-size: 11.5px; color: rgba(255,255,255,0.65); line-height: 1.6; background: rgba(245,166,35,0.1); }
+  .tip-box strong { color: var(--amber); }
+  .tip-box.tc { border-left-color: var(--teal); background: rgba(0,184,160,0.08); }
+  .tip-box.tc strong { color: var(--teal); }
+
+  .worksheet-panel { background: var(--paper); padding: 28px 32px 60px; display: flex; flex-direction: column; gap: 14px; }
+
+  .section { background: var(--paper); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px var(--rule); transition: box-shadow 0.2s; }
+  .section.open { box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1.5px var(--teal); }
+  .section-header { background: var(--navy); color: white; padding: 13px 18px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; transition: background 0.15s; }
+  .section-header:hover { background: #1a2f4a; }
+  .sec-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--teal); background: rgba(0,184,160,0.15); border: 1px solid var(--teal); border-radius: 3px; padding: 1px 7px; letter-spacing: 0.08em; }
+  .sec-title { font-family: 'DM Serif Display', serif; font-size: 16px; }
+  .sec-chev { margin-left: auto; font-size: 13px; color: var(--teal); transition: transform 0.25s; flex-shrink: 0; }
+  .section.open .sec-chev { transform: rotate(180deg); }
+  .sec-body { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.45s ease, padding 0.25s; }
+  .section.open .sec-body { max-height: 9000px; padding: 22px 22px 26px; }
+  .sec-inner { display: flex; flex-direction: column; gap: 18px; }
+
+  .callout { border-left: 4px solid var(--teal); border-radius: 0 6px 6px 0; padding: 12px 16px; font-size: 13.5px; line-height: 1.65; background: var(--teal-light); color: #0f4038; }
+  .callout strong { font-weight: 600; }
+  .callout.ca { background: var(--amber-light); border-left-color: var(--amber); color: #5c3b06; }
+  .callout.cp { background: var(--purple-light); border-left-color: var(--purple); color: #3b2470; }
+
+  /* slideout */
+  .step-row { display: flex; gap: 14px; align-items: flex-start; }
+  .step-circle { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: white; font-family: 'DM Mono', monospace; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-content { display: flex; flex-direction: column; gap: 4px; }
+  .step-title { font-size: 13.5px; font-weight: 600; }
+  .step-detail { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .step-detail ul { padding-left: 18px; margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+  .step-divider { height: 1px; background: var(--rule); }
+  .ls-note { background: var(--teal-light); border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: #0f4038; }
+
+  /* ── DRAWING CANVAS ── */
+  .draw-zone-wrap { display: flex; flex-direction: column; gap: 5px; }
+  .draw-zone-lbl { font-family: 'DM Mono', monospace; font-size: 10.5px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* toolbar */
+  .draw-toolbar {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    background: #f0ece5; border: 1px solid var(--rule); border-bottom: none;
+    border-radius: 6px 6px 0 0; padding: 6px 10px;
+  }
+  .dtb-group { display: flex; align-items: center; gap: 4px; }
+  .dtb-sep { width: 1px; height: 20px; background: var(--rule); margin: 0 2px; }
+  .dtb-btn {
+    display: flex; align-items: center; justify-content: center;
+    background: white; border: 1.5px solid var(--rule); border-radius: 4px;
+    cursor: pointer; font-size: 14px; width: 30px; height: 28px;
+    transition: border-color 0.15s, background 0.15s; flex-shrink: 0;
+  }
+  .dtb-btn:hover { border-color: var(--teal); background: var(--teal-light); }
+  .dtb-btn.active { border-color: var(--teal); background: var(--teal-light); }
+  .dtb-btn.eraser-active { border-color: var(--amber); background: var(--amber-light); }
+  .dtb-label { font-family: 'DM Mono', monospace; font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .dtb-swatch {
+    width: 22px; height: 22px; border-radius: 3px; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0;
+  }
+  .dtb-swatch.selected { border-color: var(--navy); }
+  .dtb-swatch:hover { border-color: var(--muted); }
+  .size-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; background: white;
+    border: 1.5px solid var(--rule); border-radius: 4px;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s; flex-shrink: 0;
+  }
+  .size-btn:hover { border-color: var(--teal); background: var(--teal-light); }
+  .size-btn.active { border-color: var(--teal); background: var(--teal-light); }
+  .size-dot { background: var(--ink); border-radius: 50%; flex-shrink: 0; }
+
+  /* canvas */
+  .draw-canvas-wrap {
+    position: relative; border: 1.5px solid var(--rule);
+    border-radius: 0 0 6px 6px; background: white; overflow: hidden;
+    touch-action: none;
+  }
+  .draw-canvas-wrap canvas {
+    display: block; width: 100%; cursor: crosshair;
+    touch-action: none;
+  }
+  .draw-canvas-wrap.erasing canvas { cursor: cell; }
+  .draw-placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
+    pointer-events: none; transition: opacity 0.2s;
+  }
+  .draw-placeholder-icon { font-size: 24px; opacity: 0.35; }
+  .draw-placeholder-text { font-size: 12px; color: var(--muted); opacity: 0.7; font-style: italic; }
+
+  /* drag-to-resize handle */
+  .draw-resize-handle {
+    height: 14px; display: flex; align-items: center; justify-content: center;
+    background: #f0ece5; border-top: 1px solid var(--rule);
+    border-radius: 0 0 6px 6px; cursor: ns-resize; user-select: none; flex-shrink: 0;
+  }
+  .draw-resize-handle:hover { background: var(--teal-light); }
+  .draw-resize-handle:hover .resize-dots { color: var(--teal); }
+  .resize-dots { font-size: 10px; color: var(--rule); letter-spacing: 2px; line-height: 1; pointer-events: none; }
+
+  /* lewis rows */
+  .lewis-table { display: flex; flex-direction: column; gap: 14px; }
+  .lewis-row { background: white; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+  .lewis-row-head { background: #f0ece5; padding: 8px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--rule); }
+  .lewis-formula { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500; color: var(--navy); }
+  .lewis-mol-name { font-size: 13px; color: var(--muted); }
+  .lewis-row-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* Valence electron counter — compact horizontal bar above the canvas */
+  .ve-counter { background: #f0ece5; border: 1px solid var(--rule); border-radius: 7px; padding: 8px 14px; display: flex; flex-direction: row; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 6px; }
+  .ve-title { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-right: 16px; white-space: nowrap; }
+  .ve-atom-group { display: flex; flex-direction: row; align-items: flex-end; gap: 5px; }
+  .ve-field-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .ve-field-lbl { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+  .ve-in { border: none; border-bottom: 1.5px solid var(--rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); padding: 2px 3px; outline: none; text-align: center; transition: border-color 0.15s; }
+  .ve-in:focus { border-bottom-color: var(--teal); }
+  .ve-in.ve-n  { width: 28px; }
+  .ve-in.ve-e  { width: 28px; }
+  .ve-el-chip { display: inline-flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; color: #fff; border-radius: 4px; padding: 3px 7px; letter-spacing: 0.03em; white-space: nowrap; line-height: 1; margin-bottom: 2px; }
+  .ve-op { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--muted); padding-bottom: 2px; line-height: 1; }
+  .ve-sub { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--navy); font-weight: 700; min-width: 22px; text-align: center; padding-bottom: 2px; }
+  .ve-divider { width: 1px; background: var(--rule); height: 30px; margin: 0 14px; flex-shrink: 0; }
+  .ve-total-section { display: flex; flex-direction: row; align-items: center; gap: 8px; margin-left: auto; padding-left: 14px; border-left: 2px solid var(--navy); }
+  .ve-total-lbl { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--navy); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .ve-total-val { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--teal); font-weight: 700; min-width: 24px; text-align: center; }
+
+  /* Lewis structure thumbnails above S3-5 tables */
+  .lewis-ref-strip { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; align-items: flex-end; }
+  .lewis-thumb { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .lewis-thumb-lbl { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .lewis-thumb-img { width: 150px; height: 90px; border: 1px solid var(--rule); border-radius: 5px; background: white; object-fit: contain; display: block; }
+  .lewis-thumb-empty { width: 150px; height: 90px; border: 1.5px dashed var(--rule); border-radius: 5px; background: #faf7f2; display: flex; align-items: center; justify-content: center; }
+  .lewis-thumb-empty span { font-size: 11px; color: var(--muted); font-style: italic; }
+  .lf { display: flex; flex-direction: column; gap: 5px; }
+  .lf-lbl { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* octet rule badges */
+  .octet-badge { font-family: 'DM Mono', monospace; font-size: 9.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 9px; border-radius: 3px; white-space: nowrap; }
+  .octet-badge.expanded  { background: rgba(124,92,191,0.13); border: 1.5px solid var(--purple); color: var(--purple); }
+  .octet-badge.incomplete { background: rgba(245,166,35,0.13); border: 1.5px solid var(--amber); color: #8a5a00; }
+
+  .question { display: flex; flex-direction: column; gap: 6px; }
+  .q-lbl { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .q-text { font-size: 13.5px; line-height: 1.6; }
+  .q-text strong { font-weight: 600; }
+  .ans { border: none; border-bottom: 1.5px solid var(--rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); padding: 6px 4px; width: 100%; outline: none; resize: none; transition: border-color 0.2s; }
+  .ans:focus { border-bottom-color: var(--teal); }
+  textarea.ans { min-height: 52px; line-height: 1.6; }
+  .q-hint { display:block; margin-top:6px; font-size:12.5px; color:var(--muted); font-style:italic; line-height:1.6; }
+
+  .mc-opts { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+  .mc-opt { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 5px; border: 1.5px solid var(--rule); background: white; font-size: 13.5px; line-height: 1.45; user-select: none; transition: border-color 0.15s, background 0.15s; }
+  .mc-opt:hover { border-color: var(--teal); background: var(--teal-light); }
+  .mc-opt input[type="radio"] { accent-color: var(--teal); width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+  .rank-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .rank-item { display: flex; align-items: center; gap: 10px; background: white; border: 1.5px solid var(--rule); border-radius: 5px; padding: 8px 12px; cursor: grab; user-select: none; font-size: 13.5px; transition: border-color 0.15s, box-shadow 0.15s; }
+  .rank-item:hover { border-color: var(--teal); }
+  .rank-item.dragging { opacity: 0.45; }
+  .rank-handle { color: var(--muted); font-size: 14px; flex-shrink: 0; }
+  .rank-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--teal); background: var(--teal-light); border-radius: 3px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  .disc-wrap { overflow-x: auto; }
+  .disc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); min-width: 640px; }
+  .disc-table th { background: var(--navy); color: white; font-family: 'DM Mono', monospace; font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 10px; text-align: left; white-space: nowrap; }
+  .disc-table td { padding: 7px 9px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  .disc-table tr:last-child td { border-bottom: none; }
+  .disc-table tr:nth-child(even) td { background: rgba(0,184,160,0.04); }
+  .disc-table .fm { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--navy); white-space: nowrap; }
+  .disc-table input[type="text"] { border: none; border-bottom: 1.5px solid var(--rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 3px; width: 100%; outline: none; min-width: 75px; }
+  .disc-table input:focus { border-bottom-color: var(--teal); }
+  .disc-table input.auto-fill { background: rgba(0,184,160,0.07); border-bottom: 1.5px solid var(--teal); color: var(--navy); font-weight: 600; cursor: default; }
+  .disc-table input.auto-fill:focus { border-bottom-color: var(--teal); }
+  .disc-table td:has(input.auto-fill) { position: relative; }
+  .disc-table td:has(input.auto-fill)::after { content: '↑1'; position: absolute; top: 3px; right: 4px; font-family: 'DM Mono', monospace; font-size: 8px; color: var(--teal); opacity: 0.7; pointer-events: none; }
+
+  .tool-badge { display: inline-flex; align-items: center; gap: 4px; font-family: 'DM Mono', monospace; font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; vertical-align: middle; margin-left: 3px; }
+  .tb-alch { background: rgba(0,184,160,0.1); border: 1px solid var(--teal); color: #007a6e; }
+  .tb-phet { background: rgba(245,166,35,0.1); border: 1px solid var(--amber); color: #8a5a00; }
+
+  .pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pattern-card { background: white; border: 1px solid var(--rule); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .sum-wrap { overflow-x: auto; }
+  .sum-table { width: 100%; border-collapse: collapse; font-size: 12.5px; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); min-width: 560px; }
+  .sum-table th { background: var(--navy); color: white; font-family: 'DM Mono', monospace; font-size: 9.5px; letter-spacing: 0.07em; text-transform: uppercase; padding: 9px 10px; text-align: left; }
+  .sum-table td { padding: 7px 10px; border-bottom: 1px solid var(--rule); font-size: 13px; }
+  .sum-table tr:last-child td { border-bottom: none; }
+  .sum-table tr:nth-child(even) td { background: rgba(0,184,160,0.04); }
+  .sum-table input[type="text"] { border: none; border-bottom: 1.5px solid var(--rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 2px 3px; width: 100%; outline: none; min-width: 80px; }
+  .sum-table input:focus { border-bottom-color: var(--teal); }
+  .sum-table .fx { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  .refl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .refl-card { background: white; border: 1px solid var(--rule); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  .footer-tag { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; margin-top: 4px; }
+  .footer-tag span { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .tag-line { flex: 1; height: 1px; background: var(--rule); }
+  .divider-lbl { display: flex; align-items: center; gap: 10px; }
+  .divider-lbl::before, .divider-lbl::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .divider-lbl span { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; letter-spacing: 0.08em; text-transform: uppercase; }
+  .mini-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 6px; }
+
+  /* ── LEWIS GUIDE SIDE DRAWER ── */
+  .guide-drawer {
+    position: fixed;
+    top: 80px;
+    right: -320px;
+    width: 310px;
+    height: calc(100vh - 80px);
+    background: #f8f5ef;
+    border-left: 3px solid var(--teal);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    z-index: 150;
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .guide-drawer.open { right: 0; }
+
+  .guide-drawer-header {
+    background: var(--navy);
+    color: white;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    border-bottom: 2px solid var(--teal);
+  }
+  .guide-drawer-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    flex: 1;
+    line-height: 1.2;
+  }
+  .guide-drawer-close {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .guide-drawer-close:hover { background: rgba(255,255,255,0.2); }
+  .guide-drawer-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* floating tab to open the drawer */
+  .guide-drawer-tab {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%) rotate(0deg);
+    z-index: 149;
+    background: var(--teal);
+    color: var(--navy);
+    border: none;
+    border-radius: 6px 0 0 6px;
+    padding: 10px 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.15);
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.15s, padding 0.15s;
+  }
+  .guide-drawer-tab.open { right: 310px; background: var(--navy); color: var(--teal); border: 1.5px solid var(--teal); border-right: none; }
+  .guide-drawer-tab:hover { background: #00a090; }
+  .guide-drawer-tab.open:hover { background: #1a2f4a; }
+  .tab-icon { font-size: 16px; line-height: 1; }
+  .tab-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    line-height: 1;
+  }
+
+  /* push worksheet right when drawer opens */
+  .worksheet-panel {
+    transition: padding-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .worksheet-panel.drawer-open {
+    padding-right: 326px;
+  }
+
+  /* ── SECTION 1 INTRO PANEL ── */
+  .s1-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1.5px solid var(--teal); border-radius: 8px; overflow: hidden; margin-bottom: 14px; }
+  .s1-intro-why { padding: 14px 16px; background: #fff; border-right: 1px solid rgba(0,184,160,0.25); display: flex; flex-direction: column; gap: 8px; }
+  .s1-intro-eg  { padding: 14px 16px; background: rgba(0,184,160,0.04); display: flex; flex-direction: column; gap: 10px; }
+  .s1-intro-label { font-family: 'DM Mono', monospace; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--teal); }
+  .s1-intro-why p { margin: 0; font-size: 12.5px; line-height: 1.6; color: #333; }
+  .s1-eg-rows { display: flex; flex-direction: column; gap: 5px; }
+  .s1-eg-row { display: flex; align-items: center; gap: 8px; }
+  .s1-eg-chip { font-family: 'DM Mono', monospace; font-size: 11px; background: rgba(0,184,160,0.1); border: 1px solid rgba(0,184,160,0.35); color: #006b60; border-radius: 4px; padding: 2px 8px; min-width: 95px; text-align: center; }
+  .s1-eg-chip.lp { background: rgba(124,92,191,0.1); border-color: rgba(124,92,191,0.4); color: var(--purple); }
+  .s1-eg-eq { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+  .s1-eg-note { font-size: 11.5px; color: #555; line-height: 1.55; border-top: 1px solid rgba(0,184,160,0.2); padding-top: 8px; margin-top: 2px; }
+  .s1-draw-callout { font-size: 12.5px; color: #444; background: var(--cream); border-radius: 6px; padding: 9px 14px; margin-bottom: 14px; line-height: 1.5; }
+
+  /* ── EXIT TICKET MOLECULE LIST ── */
+  .et-mol-list { display:flex; flex-direction:column; gap:6px; margin-top:14px; }
+  .et-mol-item { display:flex; align-items:center; gap:12px; background:#fff; border:1.5px solid var(--rule); border-radius:7px; padding:10px 16px; }
+  .et-num { font-family:'DM Mono',monospace; font-size:11px; font-weight:700; color:var(--teal); background:rgba(0,184,160,0.1); border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .et-fm { font-family:'DM Serif Display',serif; font-size:17px; color:var(--navy); min-width:52px; }
+  .et-name { font-size:13px; color:var(--muted); flex:1; }
+
+  /* ── PRACTICE TABLE ── */
+  .prac-wrap { overflow-x: auto; }
+  .prac-table { width: 100%; border-collapse: collapse; font-size: 12.5px; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); min-width: 700px; }
+  .prac-table th { background: var(--navy); color: white; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 9px; text-align: left; white-space: nowrap; }
+  .prac-table td { padding: 10px 9px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .prac-table tr:last-child td { border-bottom: none; }
+  .prac-table tr:nth-child(even) td { background: rgba(0,184,160,0.03); }
+  .prac-table input[type="text"] { border: none; border-bottom: 1.5px solid var(--rule); background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 3px 2px; width: 100%; outline: none; min-width: 60px; }
+  .prac-table input:focus { border-bottom-color: var(--teal); }
+  .prac-name { display: flex; flex-direction: column; gap: 3px; min-width: 120px; }
+  .prac-fm { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 600; color: var(--navy); }
+  .prac-mol-name { font-size: 10.5px; color: var(--muted); }
+  .prac-badge { font-family: 'DM Mono', monospace; font-size: 8.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 1px 6px; border-radius: 3px; white-space: nowrap; align-self: flex-start; }
+  .prac-badge.expanded   { background: rgba(124,92,191,0.12); border: 1px solid var(--purple); color: var(--purple); }
+  .prac-badge.incomplete { background: rgba(245,166,35,0.12); border: 1px solid var(--amber); color: #8a5a00; }
+  .prac-hint { font-size: 11px; color: var(--muted); line-height: 1.5; font-style: italic; min-width: 110px; }
+
+  /* answer-only card grid for Section 7 */
+  .prac-answer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .prac-card { background: white; border: 1.5px solid var(--rule); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .prac-card-head { display: flex; flex-direction: column; gap: 3px; }
+  .prac-card-fields { display: flex; flex-direction: column; gap: 8px; }
+
+  @media (max-width: 960px) {
+    .workspace { grid-template-columns: 1fr; }
+    .tool-panel { position: relative; top: 0; height: auto; }
+    .pattern-grid, .refl-grid, .mini-grid3 { grid-template-columns: 1fr; }
+    .ve-counter { flex-wrap: wrap; }
+    .ve-total-section { margin-left: 0; }
+    .header-meta { display: none; }
+    .guide-drawer { width: 290px; right: -290px; }
+    .guide-drawer.open { right: 0; }
+    .guide-drawer-tab.open { right: 290px; }
+    .worksheet-panel.drawer-open { padding-right: 0; } /* on small screens allow overlap */
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div class="header-inner">
+    <div class="header-left">
+      <span class="header-label">Chemistry · VSEPR Unit</span>
+      <span class="header-title">Discovering Molecular Shapes</span>
+    </div>
+    <div class="header-meta">
+      <div class="meta-field"><span class="meta-label">Name</span><input class="meta-input" type="text" placeholder="Your name…"/></div>
+      <div class="meta-field"><span class="meta-label">Date</span><input class="meta-input" type="text" placeholder="mm / dd / yyyy"/></div>
+      <div class="meta-field"><span class="meta-label">Period</span><input class="meta-input" type="text" placeholder="—" style="width:60px"/></div>
+      <div class="progress-wrap">
+        <span class="progress-label">Progress</span>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <span class="save-indicator" id="saveIndicator">💾 Saved</span>
+      </div>
+      <button class="reset-btn" onclick="confirmReset()" title="Clear all answers and start over">↺ Reset</button>
+      <button class="loadfile-btn" onclick="document.getElementById('loadProgressInput').click()" title="Load progress from a save file — use this on Chromebooks to restore your work from a previous session">⬆ Load Progress</button>
+      <input type="file" id="loadProgressInput" accept=".json" style="display:none" onchange="loadProgressFromFile(this)"/>
+      <button class="savefile-btn" onclick="saveProgressToFile()" title="Save your progress to a file — save it to Google Drive so you can load it next class">⬇ Save Progress</button>
+      <button class="import-btn" onclick="document.getElementById('importFileInput').click()" title="Import answers from a previously submitted worksheet">⬆ Import Previous</button>
+      <input type="file" id="importFileInput" accept=".html" style="display:none" onchange="importFromFile(this)"/>
+      <button class="download-btn" onclick="downloadWork()" title="Download your completed worksheet">⬇ Submit Work</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Chromebook / lost-progress banner ──────────────────────────────── -->
+<div id="chromebookBanner" role="alert">
+  <span class="cb-icon">💾</span>
+  <div class="cb-text">
+    <div class="cb-title">No saved progress found</div>
+    <div class="cb-body">If you worked on this before, your browser may have cleared your saved answers (this is common on <strong>school Chromebooks</strong>). If you saved a <strong>progress file (.json)</strong> to Google Drive last time, load it now to restore your work.</div>
+  </div>
+  <div class="cb-actions">
+    <input type="file" id="bannerLoadInput" accept=".json" style="display:none" onchange="loadProgressFromFile(this)"/>
+    <button class="cb-load-btn" onclick="document.getElementById('bannerLoadInput').click()">⬆ Load Progress File</button>
+    <button class="cb-dismiss" onclick="dismissBanner()">Starting Fresh ✕</button>
+  </div>
+</div>
+
+<div class="workspace">
+
+<!-- LEFT PANEL -->
+<div class="tool-panel">
+  <div class="tool-header"><span class="tool-title">🔬 Simulation Tool</span></div>
+  <div class="guide-panel">
+    <div class="tool-card phet">
+      <div class="tool-card-top"><div class="tool-icon">🧊</div><div class="tool-card-name"><span class="tool-tag">Parts 3–5 · Real Molecules tab</span><span class="tool-card-title">PhET Molecule Shapes</span></div></div>
+      <div class="tool-desc">Look up each molecule in the <strong>Real Molecules tab</strong> to observe actual 3D geometry and bond angles. Use the <em>Model tab</em> only for Q 2.1.</div>
+      <a href="https://phet.colorado.edu/sims/html/molecule-shapes/latest/molecule-shapes_all.html" target="_blank" class="tool-launch">↗ Open PhET</a>
+    </div>
+    <div class="workflow-wrap">
+      <div class="workflow-heading">Workflow for each molecule</div>
+      <div class="wf-step"><div class="wf-badge t">1</div><div class="wf-text"><strong>Draw:</strong> Use the canvas to draw the Lewis structure — finger, stylus, or mouse.</div></div>
+      <div class="wf-step"><div class="wf-badge t">2</div><div class="wf-text"><strong>Count:</strong> From your drawing, record bonding groups and lone pairs on the central atom.</div></div>
+      <div class="wf-step"><div class="wf-badge a">3</div><div class="wf-text"><strong>PhET:</strong> Open the <em>Real Molecules tab</em>. Look up each molecule, enable <em>Bond Angles</em>, and observe the actual 3D shape and angles. All 10 molecules in this activity are available there.</div></div>
+      <div class="wf-step"><div class="wf-badge a">4</div><div class="wf-text"><strong>Record:</strong> Fill in electron geometry, molecular geometry, and bond angles in the table.</div></div>
+      <div class="tip-box tr" style="margin-top:4px"><strong>⚠️ Why not the Model tab?</strong> The Model tab treats all electron groups as identical — it always shows idealized angles and can't reflect how lone pairs repel more strongly than bonding pairs. Always use <em>Real Molecules</em> for the discovery tables.</div>
+    </div>
+    <div class="tip-box tc"><strong>✏️ Drawing tips:</strong> Use the toolbar to switch pen size or color. Tap ↩️ to undo a stroke, 🗑️ to start over. Drag the dotted bar at the bottom of any canvas to make it taller.</div>
+    <div class="tip-box"><strong>💡 Key distinction:</strong> <em>Electron geometry</em> counts all groups including lone pairs. <em>Molecular geometry</em> only describes where the atoms are.</div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="worksheet-panel" id="wsp">
+
+<!-- ═══ SECTION 1: LEWIS STRUCTURES ═══ -->
+<div class="section open">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">01</span><span class="sec-title">Drawing Lewis Structures</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+    <div class="s1-intro">
+      <div class="s1-intro-why">
+        <div class="s1-intro-label">Why Lewis structures?</div>
+        <p>In VSEPR theory, the <strong>3D shape</strong> of a molecule is determined by how many <strong>electron groups</strong> surround the central atom — they repel each other and spread as far apart as possible. Before we can predict shape, we need to know where all the electrons are. That's what a Lewis structure shows us.</p>
+        <p>Once you've drawn it, you'll count the electron groups on the central atom and use that number throughout the rest of this activity.</p>
+      </div>
+      <div class="s1-intro-eg">
+        <div class="s1-intro-label">What counts as 1 electron group?</div>
+        <div class="s1-eg-rows">
+          <div class="s1-eg-row"><span class="s1-eg-chip">Single bond</span><span class="s1-eg-eq">= 1 group</span></div>
+          <div class="s1-eg-row"><span class="s1-eg-chip">Double bond</span><span class="s1-eg-eq">= 1 group</span></div>
+          <div class="s1-eg-row"><span class="s1-eg-chip">Triple bond</span><span class="s1-eg-eq">= 1 group</span></div>
+          <div class="s1-eg-row"><span class="s1-eg-chip lp">Lone pair</span><span class="s1-eg-eq">= 1 group</span></div>
+        </div>
+        <div class="s1-eg-note">Any bond to one neighbor counts as one group — <strong>bond order</strong> (the number of bonds between two atoms: single = 1, double = 2, triple = 3) doesn't matter for counting groups. Lone pairs on the central atom count too. Count central atom only.</div>
+      </div>
+    </div>
+
+    <div class="s1-draw-callout">✏️ Draw each Lewis structure below. Use the <strong>Valence Electron Count</strong> panel on the right of each molecule to practice counting total valence electrons. Need help drawing? Open the <strong>Step-by-Step Guide</strong> tab on the right edge of the screen.</div>
+
+    <div class="divider-lbl"><span>Draw each molecule below</span></div>
+
+    <div class="lewis-table" id="lewisTable">
+      <!-- Each molecule row generated by JS below for DRY code -->
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 1.1 — Reflection</span>
+      <div class="q-text">CO₂ has two double bonds but only <strong>2 electron groups</strong> on the central carbon. Why does a double bond count as one group instead of two?</div>
+      <textarea class="ans" rows="2" placeholder="Write your answer here…"></textarea>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ═══ SECTION 2: VSEPR — ELECTRON GROUPS & REPULSION ═══ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">02</span><span class="sec-title">VSEPR — Electron Groups &amp; Repulsion</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+    <div class="callout"><strong>VSEPR</strong> — Valence Shell Electron Pair Repulsion — predicts molecular shape from one idea: <em>electron groups around a central atom repel each other and spread as far apart as possible</em>. In Q 2.1 you'll use the <strong>Model tab</strong> to build intuition. From Q 2.2 onward you'll switch to the <strong>Real Molecules tab</strong>, which shows actual experimental angles.</div>
+
+    <div class="question">
+      <span class="q-lbl">Q 2.1 — Explore PhET Model Tab</span>
+      <div class="q-text">Open PhET → <strong>Model</strong> tab. Start with 2 bonding atoms on the central atom. Keep adding atoms one at a time up to 6. What happens to the existing atoms each time you add a new one?</div>
+      <textarea class="ans" rows="2" placeholder="When I add a new atom, the existing atoms…"></textarea>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 2.2 — Lone Pairs vs. Bonding Pairs: Real Molecules</span>
+      <div class="q-text">Switch to the PhET <strong>Real Molecules</strong> tab. Load <strong>CH₄</strong> first — it has 4 bonding pairs and <strong>no</strong> lone pairs on carbon. Record its bond angle. Then load <strong>NH₃</strong> — same 4 electron groups, but one of them is a lone pair. Record its bond angle. What changed, and what does that tell you about how a lone pair repels compared to a bonding pair?</div>
+      <textarea class="ans" rows="3" placeholder="CH₄ bond angle: ___ °   NH₃ bond angle: ___ °&#10;The angle decreased because…"></textarea>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 2.3 — Why Repulsion?</span>
+      <div class="q-text">All electron groups — bonding pairs and lone pairs alike — push away from each other. What property do all electron groups share that causes this?</div>
+      <div class="mc-opts">
+        <label class="mc-opt"><input type="radio" name="q23"/> A) They all have mass, and masses repel at close range</label>
+        <label class="mc-opt"><input type="radio" name="q23"/> B) They all carry negative charge, and like charges repel</label>
+        <label class="mc-opt"><input type="radio" name="q23"/> C) They spin in the same direction, creating magnetic repulsion</label>
+        <label class="mc-opt"><input type="radio" name="q23"/> D) They are attracted to the nucleus, which forces them apart</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 2.4 — Which Group Takes More Space?</span>
+      <div class="q-text">A <strong>bonding pair</strong> is pulled between <em>two</em> nuclei. A <strong>lone pair</strong> is attracted to only <em>one</em> nucleus. Which type spreads out more and repels its neighbors more strongly?</div>
+      <div class="mc-opts">
+        <label class="mc-opt"><input type="radio" name="q24"/> A) Bonding pairs — two nuclei pull them in, concentrating them into a tighter region</label>
+        <label class="mc-opt"><input type="radio" name="q24"/> B) Lone pairs — only one nucleus holds them, so they spread out more and repel harder</label>
+        <label class="mc-opt"><input type="radio" name="q24"/> C) They repel equally — all electron pairs are the same size</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 2.5 — Rank the Repulsions (drag to reorder)</span>
+      <div class="q-text">Drag to rank the interaction types from <strong>strongest repulsion (1)</strong> to <strong>weakest (3)</strong>. Use your answers above to reason it out first, then check with PhET.</div>
+      <div class="rank-list" id="rankList">
+        <div class="rank-item" draggable="true"><span class="rank-handle">⠿</span><span class="rank-num">?</span><span>Lone pair – Lone pair &nbsp;&nbsp;(LP–LP)</span></div>
+        <div class="rank-item" draggable="true"><span class="rank-handle">⠿</span><span class="rank-num">?</span><span>Lone pair – Bonding pair &nbsp;&nbsp;(LP–BP)</span></div>
+        <div class="rank-item" draggable="true"><span class="rank-handle">⠿</span><span class="rank-num">?</span><span>Bonding pair – Bonding pair &nbsp;&nbsp;(BP–BP)</span></div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:4px">
+      <strong>Coming up:</strong> In Parts 3–5 you'll build these molecules in 3D using PhET and measure their actual bond angles. You'll come back to this repulsion ranking to explain exactly <em>why</em> angles change when lone pairs are present.
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ═══ SECTION 3: 2 & 3 ELECTRON GROUPS ═══ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">03</span><span class="sec-title">Geometry &amp; Bond Angles — 2 and 3 Electron Groups</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+      <div class="callout"><strong>Step 1:</strong> Use your Lewis structure drawings above to fill in the <strong># bonding groups</strong>, <strong># lone pairs</strong>, and <strong>total e⁻ groups</strong> columns. <strong>Step 2:</strong> Open PhET → <strong>Real Molecules tab</strong>, look up each molecule, and check the boxes for <em>Lone Pairs</em>, <em>Bond Angles</em>, and <em>Electron Geometry</em> to record the <strong>electron geometry</strong>, <strong>molecular geometry</strong>, and <strong>bond angle(s)</strong>.</div>
+
+    <div class="lewis-ref-strip">
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">CO₂</span>
+        <img class="lewis-thumb-img" data-mol="co2" style="display:none" alt="CO₂ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">BF₃</span>
+        <img class="lewis-thumb-img" data-mol="bf3" style="display:none" alt="BF₃ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+    </div>
+
+    <div class="disc-wrap">
+      <table class="disc-table">
+        <thead><tr><th>Molecule</th><th># Bonding Groups</th><th># Lone Pairs</th><th>Total e⁻ Groups</th><th>Electron Geometry</th><th>Molecular Geometry</th><th>Bond Angle(s)</th></tr></thead>
+        <tbody>
+          <tr><td class="fm">CO₂</td><td><input type="text" class="ans" id="s3-co2-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s3-co2-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s3-co2-total" placeholder="—"/></td><td><input type="text" id="s3-co2-egeo" placeholder="—"/></td><td><input type="text" id="s3-co2-mgeo" placeholder="—"/></td><td><input type="text" id="s3-co2-angle" placeholder="°"/></td></tr>
+          <tr><td class="fm">BF₃</td><td><input type="text" class="ans" id="s3-bf3-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s3-bf3-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s3-bf3-total" placeholder="—"/></td><td><input type="text" id="s3-bf3-egeo" placeholder="—"/></td><td><input type="text" id="s3-bf3-mgeo" placeholder="—"/></td><td><input type="text" id="s3-bf3-angle" placeholder="°"/></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 3.1 — Number of Groups and Bond Angle</span>
+      <div class="q-text">CO₂ has 2 electron groups and a 180° bond angle. BF₃ has 3 electron groups and a 120° angle. Neither has lone pairs. Using the core VSEPR idea — that electron groups repel each other and spread as far apart as possible — explain <em>why</em> adding a third electron group shrinks the angle from 180° to 120°.</div>
+      <textarea class="ans" rows="2" placeholder="Write your answer here…"></textarea>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ═══ SECTION 4: 4 ELECTRON GROUPS ═══ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">04</span><span class="sec-title">Geometry &amp; Bond Angles — 4 Electron Groups</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+    <div class="callout ca">
+      <p style="margin:0 0 10px 0">All three molecules have exactly <strong>4 electron groups</strong>, giving them the same electron geometry — but each one adds more lone pairs. You are going to explore how the addition of lone pairs changes the molecular geometry and compresses the bond angles.</p>
+      <div style="display:flex; flex-direction:column; gap:7px;">
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="font-family:'DM Mono',monospace; font-size:10px; font-weight:700; background:var(--navy); color:#fff; border-radius:3px; padding:2px 7px; white-space:nowrap; margin-top:2px;">Step 1</span>
+          <span>Use your Lewis structure drawings above to fill in the <strong># bonding groups</strong>, <strong># lone pairs</strong>, and <strong>total e⁻ groups</strong> columns.</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="font-family:'DM Mono',monospace; font-size:10px; font-weight:700; background:var(--teal); color:#fff; border-radius:3px; padding:2px 7px; white-space:nowrap; margin-top:2px;">Step 2</span>
+          <span>Open PhET → <strong>Real Molecules tab</strong>, look up each molecule, and check the boxes for <em>Lone Pairs</em>, <em>Bond Angles</em>, and <em>Electron Geometry</em> to record the <strong>electron geometry</strong>, <strong>molecular geometry</strong>, and <strong>bond angle(s)</strong>.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lewis-ref-strip">
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">CH₄</span>
+        <img class="lewis-thumb-img" data-mol="ch4" style="display:none" alt="CH₄ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">NH₃</span>
+        <img class="lewis-thumb-img" data-mol="nh3" style="display:none" alt="NH₃ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">H₂O</span>
+        <img class="lewis-thumb-img" data-mol="h2o" style="display:none" alt="H₂O Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+    </div>
+
+    <div class="disc-wrap">
+      <table class="disc-table">
+        <thead><tr><th>Molecule</th><th># Bonding Groups</th><th># Lone Pairs</th><th>Total e⁻ Groups</th><th>Electron Geometry</th><th>Molecular Geometry</th><th>Bond Angle(s)</th></tr></thead>
+        <tbody>
+          <tr><td class="fm">CH₄</td><td><input type="text" class="ans" id="s4-ch4-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s4-ch4-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s4-ch4-total" placeholder="—"/></td><td><input type="text" id="s4-ch4-egeo" placeholder="—"/></td><td><input type="text" id="s4-ch4-mgeo" placeholder="—"/></td><td><input type="text" id="s4-ch4-angle" placeholder="°"/></td></tr>
+          <tr><td class="fm">NH₃</td><td><input type="text" class="ans" id="s4-nh3-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s4-nh3-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s4-nh3-total" placeholder="—"/></td><td><input type="text" id="s4-nh3-egeo" placeholder="—"/></td><td><input type="text" id="s4-nh3-mgeo" placeholder="—"/></td><td><input type="text" id="s4-nh3-angle" placeholder="°"/></td></tr>
+          <tr><td class="fm">H₂O</td><td><input type="text" class="ans" id="s4-h2o-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s4-h2o-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s4-h2o-total" placeholder="—"/></td><td><input type="text" id="s4-h2o-egeo" placeholder="—"/></td><td><input type="text" id="s4-h2o-mgeo" placeholder="—"/></td><td><input type="text" id="s4-h2o-angle" placeholder="°"/></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 4.1 — Same Electron Geometry, Different Shape?</span>
+      <div class="q-text">All three molecules have the same electron geometry, but look at what PhET shows for their molecular geometry — they are not the same. <strong>Try this:</strong> with NH₃ or H₂O open in PhET, toggle the <em>Lone Pairs</em> checkbox on and off. What disappears when you uncheck it, and what stays? Use that observation to explain in your own words what the difference is between <strong>electron geometry</strong> and <strong>molecular geometry</strong>.</div>
+      <textarea class="ans" rows="3" placeholder="When I uncheck Lone Pairs… The difference between electron geometry and molecular geometry is…"></textarea>
+    </div>
+    <div class="question">
+      <span class="q-lbl">Q 4.2 — Predict: What if There Were a Third Lone Pair?</span>
+      <div class="q-text">You have now seen what happens to the bond angle as you go from CH₄ (0 lone pairs) → NH₃ (1 lone pair) → H₂O (2 lone pairs). Based on that pattern, predict what would happen if a molecule had <strong>3 lone pairs</strong> and only <strong>1 bonding group</strong> on the central atom. How would the molecular geometry and bond angle be affected compared to H₂O? Explain your reasoning using what you know about lone pair repulsion.</div>
+      <textarea class="ans" rows="3" placeholder="The molecular geometry would be… The bond angle would… because…"></textarea>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ═══ SECTION 5: 5 & 6 ELECTRON GROUPS ═══ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">05</span><span class="sec-title">Geometry &amp; Bond Angles — 5 and 6 Electron Groups</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+    <div class="callout cp">These molecules have <strong>expanded octets</strong>. <strong>Step 1:</strong> Use your Lewis structure drawings above to fill in the <strong># bonding groups</strong>, <strong># lone pairs</strong>, and <strong>total e⁻ groups</strong> columns. <strong>Step 2:</strong> Open PhET → <strong>Real Molecules tab</strong>, look up each molecule, and check the boxes for <em>Lone Pairs</em>, <em>Bond Angles</em>, and <em>Electron Geometry</em> to record the <strong>electron geometry</strong>, <strong>molecular geometry</strong>, and <strong>bond angle(s)</strong>. Pay close attention — <strong>lone pairs change both the shape name and the bond angles.</strong></div>
+
+    <div class="lewis-ref-strip">
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">PCl₅</span>
+        <img class="lewis-thumb-img" data-mol="pcl5" style="display:none" alt="PCl₅ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">ClF₃</span>
+        <img class="lewis-thumb-img" data-mol="clf3" style="display:none" alt="ClF₃ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">SF₆</span>
+        <img class="lewis-thumb-img" data-mol="sf6" style="display:none" alt="SF₆ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">BrF₅</span>
+        <img class="lewis-thumb-img" data-mol="brf5" style="display:none" alt="BrF₅ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+      <div class="lewis-thumb">
+        <span class="lewis-thumb-lbl">XeF₄</span>
+        <img class="lewis-thumb-img" data-mol="xef4" style="display:none" alt="XeF₄ Lewis structure" />
+        <div class="lewis-thumb-empty"><span>not drawn yet</span></div>
+      </div>
+    </div>
+
+    <div class="divider-lbl" style="margin:18px 0 10px"><span>5 electron groups</span></div>
+    <div class="disc-wrap">
+      <table class="disc-table">
+        <thead><tr><th>Molecule</th><th># Bonding Groups</th><th># Lone Pairs</th><th>Total e⁻ Groups</th><th>Electron Geometry</th><th>Molecular Geometry</th><th>Bond Angle(s)</th></tr></thead>
+        <tbody>
+          <tr><td class="fm">PCl₅</td><td><input type="text" class="ans" id="s5-pcl5-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s5-pcl5-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s5-pcl5-total" placeholder="—"/></td><td><input type="text" id="s5-pcl5-egeo" placeholder="—"/></td><td><input type="text" id="s5-pcl5-mgeo" placeholder="—"/></td><td><input type="text" id="s5-pcl5-angle" placeholder="___ and ___°"/></td></tr>
+          <tr><td class="fm">ClF₃</td><td><input type="text" class="ans" id="s5-clf3-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s5-clf3-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s5-clf3-total" placeholder="—"/></td><td><input type="text" id="s5-clf3-egeo" placeholder="—"/></td><td><input type="text" id="s5-clf3-mgeo" placeholder="—"/></td><td><input type="text" id="s5-clf3-angle" placeholder="°"/></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider-lbl" style="margin:18px 0 10px"><span>6 electron groups</span></div>
+    <div class="disc-wrap">
+      <table class="disc-table">
+        <thead><tr><th>Molecule</th><th># Bonding Groups</th><th># Lone Pairs</th><th>Total e⁻ Groups</th><th>Electron Geometry</th><th>Molecular Geometry</th><th>Bond Angle(s)</th></tr></thead>
+        <tbody>
+          <tr><td class="fm">SF₆</td><td><input type="text" class="ans" id="s5-sf6-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s5-sf6-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s5-sf6-total" placeholder="—"/></td><td><input type="text" id="s5-sf6-egeo" placeholder="—"/></td><td><input type="text" id="s5-sf6-mgeo" placeholder="—"/></td><td><input type="text" id="s5-sf6-angle" placeholder="°"/></td></tr>
+          <tr><td class="fm">BrF₅</td><td><input type="text" class="ans" id="s5-brf5-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s5-brf5-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s5-brf5-total" placeholder="—"/></td><td><input type="text" id="s5-brf5-egeo" placeholder="—"/></td><td><input type="text" id="s5-brf5-mgeo" placeholder="—"/></td><td><input type="text" id="s5-brf5-angle" placeholder="°"/></td></tr>
+          <tr><td class="fm">XeF₄</td><td><input type="text" class="ans" id="s5-xef4-bond" placeholder="—"/></td><td><input type="text" class="ans" id="s5-xef4-lp" placeholder="—"/></td><td><input type="text" class="ans" id="s5-xef4-total" placeholder="—"/></td><td><input type="text" id="s5-xef4-egeo" placeholder="—"/></td><td><input type="text" id="s5-xef4-mgeo" placeholder="—"/></td><td><input type="text" id="s5-xef4-angle" placeholder="°"/></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="question">
+      <span class="q-lbl">Q 5.1 — Two Different Bond Angles</span>
+      <div class="q-text">PCl₅ has two different bond angles. Look at the molecule in PhET and describe <strong>where in the 3D structure</strong> each angle appears — which bonds produce the 120° angle, and which bonds produce the 90° angle?</div>
+      <textarea class="ans" rows="2" placeholder="The 120° angle is between… The 90° angle is between…"></textarea>
+    </div>
+    <div class="question">
+      <span class="q-lbl">Q 5.2 — Effect of Lone Pairs on Shape Name</span>
+      <div class="q-text">SF₆, BrF₅, and XeF₄ all have 6 electron groups, but they each have a different molecular geometry name. What causes the shape name to change even though the electron geometry stays the same?</div>
+      <textarea class="ans" rows="2" placeholder="Write your answer here…"></textarea>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ═══ SECTION 6: SUMMARY + REFLECTION ═══ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">06</span><span class="sec-title">Summary Table &amp; Reflection</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+    <div class="callout">This table fills in as you work — molecular geometry and bond angles carry over from your discovery tables in Parts 3–5. The pre-filled cells (electron geometry and example) are given. <strong>SO₂ and SF₄</strong> were not built earlier — look them up in PhET <span class="tool-badge tb-phet">🧊 PhET</span> → <strong>Real Molecules tab</strong>, then fill in their molecular geometry and bond angles.</div>
+
+    <div class="sum-wrap">
+      <table class="sum-table">
+        <thead><tr><th>e⁻ Groups</th><th>Bonding</th><th>Lone Pairs</th><th>Electron Geometry</th><th>Molecular Geometry</th><th>Bond Angle(s)</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td class="fx">2</td><td class="fx">2</td><td class="fx">0</td><td class="fx">Linear</td>                  <td><input type="text" class="ans auto-fill" id="s6-co2-mgeo"  readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-co2-angle"  readonly placeholder="°"/></td><td class="fx">CO₂</td></tr>
+          <tr><td class="fx">3</td><td class="fx">3</td><td class="fx">0</td><td class="fx">Trigonal planar</td>        <td><input type="text" class="ans auto-fill" id="s6-bf3-mgeo"  readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-bf3-angle"  readonly placeholder="°"/></td><td class="fx">BF₃</td></tr>
+          <tr><td class="fx">3</td><td class="fx">2</td><td class="fx">1</td><td class="fx">Trigonal planar</td>        <td><input type="text" placeholder="—"/></td><td><input type="text" placeholder="°"/></td><td class="fx" style="color:var(--amber);font-weight:700;">SO₂ ✍︎</td></tr>
+          <tr><td class="fx">4</td><td class="fx">4</td><td class="fx">0</td><td class="fx">Tetrahedral</td>            <td><input type="text" class="ans auto-fill" id="s6-ch4-mgeo"  readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-ch4-angle"  readonly placeholder="°"/></td><td class="fx">CH₄</td></tr>
+          <tr><td class="fx">4</td><td class="fx">3</td><td class="fx">1</td><td class="fx">Tetrahedral</td>            <td><input type="text" class="ans auto-fill" id="s6-nh3-mgeo"  readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-nh3-angle"  readonly placeholder="°"/></td><td class="fx">NH₃</td></tr>
+          <tr><td class="fx">4</td><td class="fx">2</td><td class="fx">2</td><td class="fx">Tetrahedral</td>            <td><input type="text" class="ans auto-fill" id="s6-h2o-mgeo"  readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-h2o-angle"  readonly placeholder="°"/></td><td class="fx">H₂O</td></tr>
+          <tr><td class="fx">5</td><td class="fx">5</td><td class="fx">0</td><td class="fx">Trig. bipyramidal</td>      <td><input type="text" class="ans auto-fill" id="s6-pcl5-mgeo" readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-pcl5-angle" readonly placeholder="°"/></td><td class="fx">PCl₅</td></tr>
+          <tr><td class="fx">5</td><td class="fx">3</td><td class="fx">2</td><td class="fx">Trig. bipyramidal</td>      <td><input type="text" class="ans auto-fill" id="s6-clf3-mgeo" readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-clf3-angle" readonly placeholder="°"/></td><td class="fx">ClF₃</td></tr>
+          <tr><td class="fx">5</td><td class="fx">4</td><td class="fx">1</td><td class="fx">Trig. bipyramidal</td>      <td><input type="text" placeholder="—"/></td><td><input type="text" placeholder="°"/></td><td class="fx" style="color:var(--amber);font-weight:700;">SF₄ ✍︎</td></tr>
+          <tr><td class="fx">6</td><td class="fx">6</td><td class="fx">0</td><td class="fx">Octahedral</td>             <td><input type="text" class="ans auto-fill" id="s6-sf6-mgeo"  readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-sf6-angle"  readonly placeholder="°"/></td><td class="fx">SF₆</td></tr>
+          <tr><td class="fx">6</td><td class="fx">5</td><td class="fx">1</td><td class="fx">Octahedral</td>             <td><input type="text" class="ans auto-fill" id="s6-brf5-mgeo" readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-brf5-angle" readonly placeholder="°"/></td><td class="fx">BrF₅</td></tr>
+          <tr><td class="fx">6</td><td class="fx">4</td><td class="fx">2</td><td class="fx">Octahedral</td>             <td><input type="text" class="ans auto-fill" id="s6-xef4-mgeo" readonly placeholder="—"/></td><td><input type="text" class="ans auto-fill" id="s6-xef4-angle" readonly placeholder="°"/></td><td class="fx">XeF₄</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="question">
+      <span class="q-lbl">Q 6.1 — In Your Own Words</span>
+      <div class="q-text">Explain how you would determine the molecular geometry and bond angles of any molecule. Write as if explaining to a classmate who missed this activity. <em class="q-hint">💡 Hint: think back through the steps you took in this activity to arrive at each molecule's final shape and angles.</em></div>
+      <textarea class="ans" rows="4" placeholder="Write your explanation here…"></textarea>
+    </div>
+
+    <div class="refl-grid">
+      <div class="refl-card">
+        <span class="q-lbl">💡 Biggest takeaway</span>
+        <div class="q-text" style="font-size:12px;color:var(--muted)">What's the most important thing you discovered today?</div>
+        <textarea class="ans" rows="3" placeholder="Write here…"></textarea>
+      </div>
+      <div class="refl-card">
+        <span class="q-lbl">❓ Still wondering…</span>
+        <div class="q-text" style="font-size:12px;color:var(--muted)">What question do you still have?</div>
+        <textarea class="ans" rows="3" placeholder="Write here…"></textarea>
+      </div>
+      <div class="refl-card">
+        <span class="q-lbl">⭐ Confidence Check</span>
+        <div class="q-text" style="font-size:12px;margin-bottom:4px">I can predict molecular geometry from a Lewis structure:</div>
+        <div class="mc-opts" style="gap:5px">
+          <label class="mc-opt" style="padding:6px 10px;font-size:12.5px"><input type="radio" name="conf"/> Not yet — I need more practice</label>
+          <label class="mc-opt" style="padding:6px 10px;font-size:12.5px"><input type="radio" name="conf"/> Getting there — a few things are fuzzy</label>
+          <label class="mc-opt" style="padding:6px 10px;font-size:12.5px"><input type="radio" name="conf"/> Got it — I could explain this to a classmate</label>
+        </div>
+      </div>
+      <div class="refl-card">
+        <span class="q-lbl">🔗 Real-world connection</span>
+        <div class="q-text" style="font-size:12px;color:var(--muted)">This was not covered in the activity — look it up. Find one real example where a molecule's shape affects how it behaves or functions (biology, medicine, materials, environment). Name the molecule, its shape, and why the shape matters.</div>
+        <textarea class="ans" rows="3" placeholder="Molecule: ___ | Shape: ___ | Why shape matters: …"></textarea>
+      </div>
+    </div>
+
+  </div></div>
+</div>
+
+<!-- ═══ SECTION 7: EXIT TICKET ═══ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSec(this)">
+    <span class="sec-num">07</span><span class="sec-title">Exit Ticket</span><span class="sec-chev">▼</span>
+  </div>
+  <div class="sec-body"><div class="sec-inner">
+
+    <div class="callout" style="display:flex;gap:14px;align-items:flex-start;">
+      <span style="font-size:22px;line-height:1;flex-shrink:0">📄</span>
+      <div>Use your <strong>paper worksheet</strong> to draw each Lewis structure, count electron groups, and look up the geometry in your <strong>summary table in Section 6</strong>. Identify the molecular geometry and bond angles for each molecule. Hand in the paper worksheet to your teacher.</div>
+    </div>
+
+    <div class="et-mol-list">
+      <div class="et-mol-item"><span class="et-num">1</span><span class="et-fm">CS₂</span><span class="et-name">Carbon disulfide</span></div>
+      <div class="et-mol-item"><span class="et-num">2</span><span class="et-fm">CCl₄</span><span class="et-name">Carbon tetrachloride</span></div>
+      <div class="et-mol-item"><span class="et-num">3</span><span class="et-fm">PH₃</span><span class="et-name">Phosphine</span></div>
+      <div class="et-mol-item"><span class="et-num">4</span><span class="et-fm">H₂S</span><span class="et-name">Hydrogen sulfide</span></div>
+      <div class="et-mol-item"><span class="et-num">5</span><span class="et-fm">ICl₃</span><span class="et-name">Iodine trichloride</span><span class="prac-badge expanded" style="font-size:9px;padding:1px 6px;">Expanded octet</span></div>
+    </div>
+
+  </div></div>
+</div>
+
+<div class="footer-tag">
+  <div class="tag-line"></div>
+  <span>PhET Molecule Shapes · phet.colorado.edu/molecule-shapes</span>
+  <div class="tag-line"></div>
+</div>
+
+</div><!-- /worksheet-panel -->
+</div><!-- /workspace -->
+
+<script>
+// ── ACCORDION ──
+function toggleSec(hdr) { hdr.parentElement.classList.toggle('open'); }
+
+// ── SLIDEOUT (sections 2+) ──
+function toggleSlide(id, btn) {
+  const wrap = document.getElementById(id);
+  btn.classList.toggle('open');
+  wrap.classList.toggle('open');
+}
+
+// ── LEWIS GUIDE SIDE DRAWER ──
+function toggleGuideDrawer() {
+  const drawer = document.getElementById('guideDrawer');
+  const tab    = document.getElementById('guideTab');
+  const wsp    = document.getElementById('wsp');
+  const isOpen = drawer.classList.toggle('open');
+  tab.classList.toggle('open', isOpen);
+  wsp.classList.toggle('drawer-open', isOpen);
+}
+
+// ═══════════════════════════════════════════════
+// CANVAS DRAWING ENGINE — declared FIRST so the
+// molecule row builder can safely call initCanvas
+// ═══════════════════════════════════════════════
+
+const canvasState = {}; // keyed by molecule id
+
+function getCtx(id) {
+  return document.getElementById('canvas-' + id).getContext('2d');
+}
+function posFromMouse(e, canvas) {
+  const r = canvas.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (canvas.width / r.width),
+           y: (e.clientY - r.top)  * (canvas.height / r.height) };
+}
+function posFromTouch(e, canvas) {
+  const t = e.touches[0] || e.changedTouches[0];
+  const r = canvas.getBoundingClientRect();
+  return { x: (t.clientX - r.left) * (canvas.width / r.width),
+           y: (t.clientY - r.top)  * (canvas.height / r.height) };
+}
+
+function startDraw(e, id, pos) {
+  const s = canvasState[id]; if (!s) return;
+  s.history.push(document.getElementById('canvas-' + id).toDataURL());
+  if (s.history.length > 40) s.history.shift();
+  s.drawing = true;
+  s.last = pos;
+  const ctx = getCtx(id);
+  ctx.beginPath();
+  ctx.arc(pos.x, pos.y, (s.tool === 'eraser' ? s.size * 4 : s.size) / 2, 0, Math.PI * 2);
+  ctx.fillStyle = s.tool === 'eraser' ? '#ffffff' : s.color;
+  ctx.fill();
+}
+
+function draw(e, id, pos) {
+  const s = canvasState[id]; if (!s || !s.drawing) return;
+  const ctx = getCtx(id);
+  ctx.beginPath();
+  ctx.moveTo(s.last.x, s.last.y);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.lineWidth   = s.tool === 'eraser' ? s.size * 4 : s.size;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+  ctx.strokeStyle = s.tool === 'eraser' ? '#ffffff' : s.color;
+  ctx.stroke();
+  s.last = pos;
+  if (s.tool !== 'eraser') {
+    s.hasContent = true;
+    const ph = document.getElementById('ph-' + id);
+    if (ph) ph.style.opacity = '0';
+    updateProgress();
+  }
+}
+
+function endDraw(id) {
+  const s = canvasState[id]; if (s) s.drawing = false;
+  updateThumb(id);
+}
+
+function setTool(id, tool) {
+  const s = canvasState[id]; if (!s) return;
+  s.tool = tool;
+  const wrap   = document.getElementById('wrap-' + id);
+  const penBtn = document.getElementById('pen-' + id);
+  const eraBtn = document.getElementById('era-' + id);
+  if (tool === 'eraser') {
+    wrap.classList.add('erasing');
+    penBtn.classList.remove('active');
+    eraBtn.classList.add('active','eraser-active');
+  } else {
+    wrap.classList.remove('erasing');
+    eraBtn.classList.remove('active','eraser-active');
+    penBtn.classList.add('active');
+  }
+}
+
+function setColor(id, color, el) {
+  const s = canvasState[id]; if (!s) return;
+  s.color = color;
+  setTool(id, 'pen');
+  el.closest('.dtb-group').querySelectorAll('.dtb-swatch').forEach(sw => sw.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function setSize(id, size, btn) {
+  const s = canvasState[id]; if (!s) return;
+  s.size = size;
+  btn.closest('.dtb-group').querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function undoCanvas(id) {
+  const s = canvasState[id]; if (!s || !s.history.length) return;
+  const prev   = s.history.pop();
+  const canvas = document.getElementById('canvas-' + id);
+  const ctx    = canvas.getContext('2d');
+  const img    = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    const blank = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(v => v > 0);
+    s.hasContent = !blank;
+    const ph = document.getElementById('ph-' + id);
+    if (ph) ph.style.opacity = blank ? '1' : '0';
+    updateThumb(id);
+    updateProgress();
+  };
+  img.src = prev;
+}
+
+function clearCanvas(id) {
+  const s = canvasState[id]; if (!s) return;
+  const canvas = document.getElementById('canvas-' + id);
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  s.history = [];
+  s.hasContent = false;
+  const ph = document.getElementById('ph-' + id);
+  if (ph) ph.style.opacity = '1';
+  updateThumb(id);
+  updateProgress();
+}
+
+// ── Lewis structure thumbnails ──────────────────────────────────────────────
+// Copies a canvas drawing to all <img class="lewis-thumb-img" data-mol="id"> elements.
+// Called after every draw stroke, undo, clear, resize, and page restore.
+function updateThumb(id) {
+  const canvas = document.getElementById('canvas-' + id);
+  if (!canvas) return;
+  const thumbs = document.querySelectorAll(`.lewis-thumb-img[data-mol="${id}"]`);
+  if (!thumbs.length) return;
+  try {
+    const url = canvas.toDataURL();
+    const isEmpty = url === 'data:,' || !canvasState[id]?.hasContent;
+    thumbs.forEach(img => {
+      if (isEmpty) {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+        const empty = img.nextElementSibling;
+        if (empty && empty.classList.contains('lewis-thumb-empty')) empty.style.display = 'flex';
+      } else {
+        img.src = url;
+        img.style.display = 'block';
+        const empty = img.nextElementSibling;
+        if (empty && empty.classList.contains('lewis-thumb-empty')) empty.style.display = 'none';
+      }
+    });
+  } catch(e) {}
+}
+
+// Resize canvas height when the wrap element is resized (width change),
+// debounced to suppress the "ResizeObserver loop" browser warning.
+function makeResizeObserver(id) {
+  let pending = false;
+  return new ResizeObserver(() => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      const canvas = document.getElementById('canvas-' + id);
+      const wrap   = document.getElementById('wrap-' + id);
+      if (!canvas || !wrap) return;
+      const newW = wrap.offsetWidth;
+      if (!newW || newW === canvas.width) return;
+      const tmp = canvas.toDataURL();
+      canvas.width = newW;
+      if (tmp !== 'data:,') {
+        const img = new Image();
+        img.onload = () => getCtx(id).drawImage(img, 0, 0);
+        img.src = tmp;
+      }
+    });
+  });
+}
+
+// Drag-to-resize handle (mouse + touch)
+function initResizeHandle(id) {
+  const handle = document.getElementById('rh-' + id);
+  const canvas = document.getElementById('canvas-' + id);
+  if (!handle || !canvas) return;
+  const MIN_H = 120, MAX_H = 800;
+
+  function onMove(clientY, startY, startH) {
+    const newH = Math.min(MAX_H, Math.max(MIN_H, startH + (clientY - startY)));
+    canvas.height = newH;
+    canvas.style.height = newH + 'px';
+    // restore drawing — height change clears canvas
+    const s = canvasState[id];
+    if (s && s._heightSnapshot) {
+      const img = new Image();
+      img.onload = () => {
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = s._heightSnapshot;
+    }
+  }
+
+  // Mouse
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    const startY = e.clientY, startH = canvas.offsetHeight;
+    const s = canvasState[id];
+    if (s) s._heightSnapshot = canvas.toDataURL();
+    function mm(ev) { onMove(ev.clientY, startY, startH); }
+    function mu() {
+      document.removeEventListener('mousemove', mm);
+      document.removeEventListener('mouseup', mu);
+      updateThumb(id);
+      saveAll();
+    }
+    document.addEventListener('mousemove', mm);
+    document.addEventListener('mouseup', mu);
+  });
+
+  // Touch
+  handle.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const t0 = e.touches[0];
+    const startY = t0.clientY, startH = canvas.offsetHeight;
+    const s = canvasState[id];
+    if (s) s._heightSnapshot = canvas.toDataURL();
+    function tm(ev) { ev.preventDefault(); onMove(ev.touches[0].clientY, startY, startH); }
+    function tu() {
+      handle.removeEventListener('touchmove', tm);
+      handle.removeEventListener('touchend', tu);
+      updateThumb(id);
+      saveAll();
+    }
+    handle.addEventListener('touchmove', tm, { passive: false });
+    handle.addEventListener('touchend', tu);
+  }, { passive: false });
+}
+
+function initCanvas(id) {
+  const canvas = document.getElementById('canvas-' + id);
+  const wrap   = document.getElementById('wrap-' + id);
+  if (!canvas || !wrap) return;
+
+  canvas.width  = wrap.offsetWidth || 600;
+  canvas.height = 200;
+
+  canvasState[id] = {
+    tool: 'pen', color: '#1a1a2e', size: 2,
+    drawing: false, last: null,
+    history: [], hasContent: false,
+    _heightSnapshot: null,
+  };
+
+  // Width-resize observer (debounced)
+  makeResizeObserver(id).observe(wrap);
+
+  // Height-resize drag handle
+  initResizeHandle(id);
+
+  // Mouse events
+  canvas.addEventListener('mousedown',  e => startDraw(e, id, posFromMouse(e, canvas)));
+  canvas.addEventListener('mousemove',  e => { if (canvasState[id].drawing) draw(e, id, posFromMouse(e, canvas)); });
+  canvas.addEventListener('mouseup',    () => endDraw(id));
+  canvas.addEventListener('mouseleave', () => endDraw(id));
+
+  // Touch events
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e, id, posFromTouch(e, canvas)); }, { passive: false });
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); draw(e, id, posFromTouch(e, canvas)); },      { passive: false });
+  canvas.addEventListener('touchend',   e => { e.preventDefault(); endDraw(id); },                               { passive: false });
+}
+
+// ── MOLECULE LIST + ROW BUILDER ──
+const molecules = [
+  { id:'h2o',  formula:'H₂O',  name:'Water',                    central:'O',  els:[{sym:'O',color:'#e53e3e'},{sym:'H',color:'#3182ce'}] },
+  { id:'nh3',  formula:'NH₃',  name:'Ammonia',                  central:'N',  els:[{sym:'N',color:'#2f855a'},{sym:'H',color:'#3182ce'}] },
+  { id:'ch4',  formula:'CH₄',  name:'Methane',                  central:'C',  els:[{sym:'C',color:'#4a5568'},{sym:'H',color:'#3182ce'}] },
+  { id:'co2',  formula:'CO₂',  name:'Carbon Dioxide',           central:'C',  els:[{sym:'C',color:'#4a5568'},{sym:'O',color:'#e53e3e'}], bondNote:'C=O counts as 1 group' },
+  { id:'bf3',  formula:'BF₃',  name:'Boron Trifluoride',        central:'B',  els:[{sym:'B',color:'#b7791f'},{sym:'F',color:'#00b8a0'}], octet:'incomplete' },
+  { id:'pcl5', formula:'PCl₅', name:'Phosphorus Pentachloride', central:'P',  els:[{sym:'P',color:'#805ad5'},{sym:'Cl',color:'#00b8a0'}], octet:'expanded' },
+  { id:'sf6',  formula:'SF₆',  name:'Sulfur Hexafluoride',      central:'S',  els:[{sym:'S',color:'#b7791f'},{sym:'F',color:'#00b8a0'}], octet:'expanded' },
+  { id:'clf3', formula:'ClF₃', name:'Chlorine Trifluoride',     central:'Cl', els:[{sym:'Cl',color:'#00b8a0'},{sym:'F',color:'#2f855a'}], octet:'expanded' },
+  { id:'brf5', formula:'BrF₅', name:'Bromine Pentafluoride',    central:'Br', els:[{sym:'Br',color:'#c05621'},{sym:'F',color:'#00b8a0'}], octet:'expanded' },
+  { id:'xef4', formula:'XeF₄', name:'Xenon Tetrafluoride',      central:'Xe', els:[{sym:'Xe',color:'#6b46c1'},{sym:'F',color:'#00b8a0'}], octet:'expanded' },
+];
+
+const lewisTable = document.getElementById('lewisTable');
+molecules.forEach(m => {
+  const row = document.createElement('div');
+  row.className = 'lewis-row';
+  row.innerHTML = `
+    <div class="lewis-row-head">
+      <span class="lewis-formula">${m.formula}</span>
+      <span class="lewis-mol-name">${m.name}</span>
+      ${m.octet === 'expanded'   ? '<span class="octet-badge expanded">⚠ Expanded Octet</span>' : ''}
+      ${m.octet === 'incomplete' ? '<span class="octet-badge incomplete">⚠ Incomplete Octet</span>' : ''}
+    </div>
+    <div class="lewis-row-body">
+      <div class="ve-counter">
+        <span class="ve-title">Valence e⁻</span>
+        ${m.els.map((el, i) => {
+          const n = i + 1;
+          return `<div class="ve-atom-group">
+            <span class="ve-el-chip" style="background:${el.color}">${el.sym}</span>
+            <div class="ve-field-wrap">
+              <span class="ve-field-lbl"># atoms</span>
+              <input class="ve-in ve-n" id="ve-n${n}-${m.id}" type="number" min="0" placeholder="?" />
+            </div>
+            <span class="ve-op">×</span>
+            <div class="ve-field-wrap">
+              <span class="ve-field-lbl">VE each</span>
+              <input class="ve-in ve-e" id="ve-e${n}-${m.id}" type="number" min="0" placeholder="?" />
+            </div>
+            <span class="ve-op">=</span>
+            <span class="ve-sub" id="ve-sub${n}-${m.id}">—</span>
+          </div>`;
+        }).join('<div class="ve-divider"></div>')}
+        <div class="ve-total-section">
+          <span class="ve-total-lbl">Total VE</span>
+          <span class="ve-total-val" id="ve-tot-${m.id}">—</span>
+        </div>
+      </div>
+
+      <div class="draw-zone-wrap">
+        <span class="draw-zone-lbl">Draw Lewis Structure</span>
+        <div class="draw-toolbar" id="tb-${m.id}">
+          <div class="dtb-group">
+            <span class="dtb-label">Tool</span>
+            <button class="dtb-btn active" id="pen-${m.id}" title="Pen" onclick="setTool('${m.id}','pen')">✏️</button>
+            <button class="dtb-btn" id="era-${m.id}" title="Eraser" onclick="setTool('${m.id}','eraser')">⬜</button>
+          </div>
+          <div class="dtb-sep"></div>
+          <div class="dtb-group">
+            <span class="dtb-label">Size</span>
+            <button class="size-btn active" id="sz1-${m.id}" onclick="setSize('${m.id}',2,this)" title="Thin">
+              <div class="size-dot" style="width:3px;height:3px"></div>
+            </button>
+            <button class="size-btn" id="sz2-${m.id}" onclick="setSize('${m.id}',5,this)" title="Medium">
+              <div class="size-dot" style="width:6px;height:6px"></div>
+            </button>
+            <button class="size-btn" id="sz3-${m.id}" onclick="setSize('${m.id}',10,this)" title="Thick">
+              <div class="size-dot" style="width:10px;height:10px"></div>
+            </button>
+          </div>
+          <div class="dtb-sep"></div>
+          <div class="dtb-group">
+            <span class="dtb-label">Color</span>
+            <div class="dtb-swatch selected" style="background:#1a1a2e" onclick="setColor('${m.id}','#1a1a2e',this)" title="Black"></div>
+            <div class="dtb-swatch" style="background:#00b8a0" onclick="setColor('${m.id}','#00b8a0',this)" title="Teal"></div>
+            <div class="dtb-swatch" style="background:#e53e3e" onclick="setColor('${m.id}','#e53e3e',this)" title="Red"></div>
+            <div class="dtb-swatch" style="background:#3182ce" onclick="setColor('${m.id}','#3182ce',this)" title="Blue"></div>
+            <div class="dtb-swatch" style="background:#805ad5" onclick="setColor('${m.id}','#805ad5',this)" title="Purple"></div>
+          </div>
+          <div class="dtb-sep"></div>
+          <div class="dtb-group">
+            <button class="dtb-btn" onclick="undoCanvas('${m.id}')" title="Undo">↩️</button>
+            <button class="dtb-btn" onclick="clearCanvas('${m.id}')" title="Clear all">🗑️</button>
+          </div>
+        </div>
+        <div class="draw-canvas-wrap" id="wrap-${m.id}">
+          <canvas id="canvas-${m.id}" height="200"></canvas>
+          <div class="draw-placeholder" id="ph-${m.id}">
+            <div class="draw-placeholder-icon">✏️</div>
+            <div class="draw-placeholder-text">Draw your Lewis structure here</div>
+          </div>
+        </div>
+        <div class="draw-resize-handle" id="rh-${m.id}" title="Drag to resize">
+          <span class="resize-dots">• • • • •</span>
+        </div>
+      </div>
+    </div>`;
+  lewisTable.appendChild(row);
+
+  // Wire VE counter auto-calculation for this molecule
+  ['1','2'].forEach(row => {
+    const nEl = document.getElementById(`ve-n${row}-${m.id}`);
+    const eEl = document.getElementById(`ve-e${row}-${m.id}`);
+    const subEl = document.getElementById(`ve-sub${row}-${m.id}`);
+    function recalc() {
+      const n = parseFloat(nEl.value), e = parseFloat(eEl.value);
+      subEl.textContent = (!isNaN(n) && !isNaN(e)) ? String(n * e) : '—';
+      // Update grand total
+      const s1 = parseFloat(document.getElementById(`ve-sub1-${m.id}`).textContent);
+      const s2 = parseFloat(document.getElementById(`ve-sub2-${m.id}`).textContent);
+      const totEl = document.getElementById(`ve-tot-${m.id}`);
+      totEl.textContent = (!isNaN(s1) || !isNaN(s2))
+        ? String((isNaN(s1) ? 0 : s1) + (isNaN(s2) ? 0 : s2))
+        : '—';
+    }
+    nEl.addEventListener('input', recalc);
+    eEl.addEventListener('input', recalc);
+  });
+});
+
+// init canvases after DOM is built
+molecules.forEach(m => initCanvas(m.id));
+
+// ── AUTO-POPULATE: S1 → later section tables ──
+// Each entry: source id in S1, destination ids in S3-5
+const syncLinks = [
+  // ── S3 geometry/angles → S6 ──
+  { src:'s3-co2-mgeo',   dsts:['s6-co2-mgeo']   },
+  { src:'s3-co2-angle',  dsts:['s6-co2-angle']   },
+  { src:'s3-bf3-mgeo',   dsts:['s6-bf3-mgeo']   },
+  { src:'s3-bf3-angle',  dsts:['s6-bf3-angle']   },
+  // ── S4 geometry/angles → S6 ──
+  { src:'s4-ch4-mgeo',   dsts:['s6-ch4-mgeo']   },
+  { src:'s4-ch4-angle',  dsts:['s6-ch4-angle']   },
+  { src:'s4-nh3-mgeo',   dsts:['s6-nh3-mgeo']   },
+  { src:'s4-nh3-angle',  dsts:['s6-nh3-angle']   },
+  { src:'s4-h2o-mgeo',   dsts:['s6-h2o-mgeo']   },
+  { src:'s4-h2o-angle',  dsts:['s6-h2o-angle']   },
+  // ── S5 geometry/angles → S6 ──
+  { src:'s5-pcl5-mgeo',  dsts:['s6-pcl5-mgeo']  },
+  { src:'s5-pcl5-angle', dsts:['s6-pcl5-angle']  },
+  { src:'s5-clf3-mgeo',  dsts:['s6-clf3-mgeo']  },
+  { src:'s5-clf3-angle', dsts:['s6-clf3-angle']  },
+  { src:'s5-sf6-mgeo',   dsts:['s6-sf6-mgeo']   },
+  { src:'s5-sf6-angle',  dsts:['s6-sf6-angle']   },
+  { src:'s5-brf5-mgeo',  dsts:['s6-brf5-mgeo']  },
+  { src:'s5-brf5-angle', dsts:['s6-brf5-angle']  },
+  { src:'s5-xef4-mgeo',  dsts:['s6-xef4-mgeo']  },
+  { src:'s5-xef4-angle', dsts:['s6-xef4-angle']  },
+];
+syncLinks.forEach(({ src, dsts }) => {
+  const srcEl = document.getElementById(src);
+  if (!srcEl) return;
+  const push = () => dsts.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = srcEl.value;
+  });
+  srcEl.addEventListener('input', push);
+  srcEl.addEventListener('change', push);
+});
+
+// ── DRAG-TO-RANK ──
+const rl = document.getElementById('rankList');
+if(rl) {
+  let dragged = null;
+  rl.addEventListener('dragstart', e => { dragged = e.target.closest('.rank-item'); if(dragged) dragged.classList.add('dragging'); });
+  rl.addEventListener('dragend', () => { if(dragged) dragged.classList.remove('dragging'); dragged=null; updateNums(); });
+  rl.addEventListener('dragover', e => {
+    e.preventDefault();
+    const t = e.target.closest('.rank-item');
+    if(t && t!==dragged) { const r=t.getBoundingClientRect(); rl.insertBefore(dragged, e.clientY>r.top+r.height/2 ? t.nextSibling : t); }
+  });
+  function updateNums() { rl.querySelectorAll('.rank-item').forEach((it,i)=>{ const n=it.querySelector('.rank-num'); if(n) n.textContent=i+1; }); }
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  const inputs = document.querySelectorAll('#wsp input[type="text"]:not([readonly]), #wsp textarea');
+  const rGroups = [...new Set([...document.querySelectorAll('#wsp input[type="radio"]')].map(r=>r.name).filter(Boolean))];
+  let filled = 0;
+  let total = inputs.length + rGroups.length + molecules.length;
+  inputs.forEach(i => { if(i.value.trim()) filled++; });
+  rGroups.forEach(n => { if(document.querySelector(`input[name="${n}"]:checked`)) filled++; });
+  molecules.forEach(m => { if(canvasState[m.id] && canvasState[m.id].hasContent) filled++; });
+  document.getElementById('progressFill').style.width = (total>0 ? Math.round(filled/total*100) : 0)+'%';
+}
+document.getElementById('wsp').addEventListener('input', updateProgress);
+document.getElementById('wsp').addEventListener('change', updateProgress);
+updateProgress();
+
+// ══════════════════════════════════════════════
+// AUTOSAVE — localStorage
+// ══════════════════════════════════════════════
+const SAVE_KEY = 'vsepr_worksheet_v1';
+let saveTimer = null;
+
+function showSaved() {
+  const ind = document.getElementById('saveIndicator');
+  ind.classList.add('visible');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => ind.classList.remove('visible'), 2500);
+}
+
+function saveAll() {
+  const data = {};
+
+  // Text inputs + textareas (excluding readonly auto-fills)
+  document.querySelectorAll('input[type="text"]:not([readonly]), textarea').forEach(el => {
+    if (el.id) data[el.id] = el.value;
+    else if (el.name) data['n:' + el.name + ':' + [...document.querySelectorAll(`[name="${el.name}"]`)].indexOf(el)] = el.value;
+    else {
+      // use position-based key
+      const all = [...document.querySelectorAll('input[type="text"]:not([readonly]), textarea')];
+      data['pos:' + all.indexOf(el)] = el.value;
+    }
+  });
+
+  // Radio buttons — save by index within the named group (no value attrs in this worksheet)
+  document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+    const idx = Array.from(document.querySelectorAll(`input[type="radio"][name="${el.name}"]`)).indexOf(el);
+    data['radio:' + el.name] = idx;
+  });
+
+  // Meta header inputs
+  document.querySelectorAll('.meta-input').forEach((el, i) => {
+    data['meta:' + i] = el.value;
+  });
+
+  // Canvas drawings — save as dataURL and preserve custom height
+  molecules.forEach(m => {
+    const canvas = document.getElementById('canvas-' + m.id);
+    if (canvas) {
+      try {
+        data['canvas:' + m.id]  = canvas.toDataURL();
+        data['canvasH:' + m.id] = canvas.height;
+      } catch(e) {}
+    }
+  });
+
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  showSaved();
+}
+
+function restoreAll() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch(e) {}
+  if (!data) return;
+
+  // Text inputs + textareas
+  document.querySelectorAll('input[type="text"]:not([readonly]), textarea').forEach(el => {
+    let val;
+    if (el.id && data[el.id] !== undefined) val = data[el.id];
+    else if (el.name) {
+      const key = 'n:' + el.name + ':' + [...document.querySelectorAll(`[name="${el.name}"]`)].indexOf(el);
+      if (data[key] !== undefined) val = data[key];
+    } else {
+      const all = [...document.querySelectorAll('input[type="text"]:not([readonly]), textarea')];
+      const key = 'pos:' + all.indexOf(el);
+      if (data[key] !== undefined) val = data[key];
+    }
+    if (val !== undefined) el.value = val;
+  });
+
+  // Radio buttons — restore by saved group index
+  Object.keys(data).filter(k => k.startsWith('radio:')).forEach(k => {
+    const name = k.slice(6);
+    const idx = parseInt(data[k]);
+    if (isNaN(idx)) return;
+    const radios = document.querySelectorAll(`input[type="radio"][name="${name}"]`);
+    if (radios[idx]) radios[idx].checked = true;
+  });
+
+  // Meta header
+  document.querySelectorAll('.meta-input').forEach((el, i) => {
+    if (data['meta:' + i] !== undefined) el.value = data['meta:' + i];
+  });
+
+  // Canvas drawings — restore saved height first, then paint, then update thumbnails
+  molecules.forEach(m => {
+    const dataUrl = data['canvas:' + m.id];
+    if (!dataUrl) return;
+    const canvas = document.getElementById('canvas-' + m.id);
+    if (!canvas) return;
+
+    // Restore user-resized height before drawing (changing height clears the canvas,
+    // so this must happen before we paint — prevents drawings being clipped)
+    const savedH = data['canvasH:' + m.id];
+    if (savedH && savedH !== canvas.height) {
+      canvas.height = savedH;
+      canvas.style.height = savedH + 'px';
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      if (canvasState[m.id]) {
+        canvasState[m.id].hasContent = true;
+        const ph = document.getElementById('ph-' + m.id);
+        if (ph) ph.style.opacity = '0';
+      }
+      updateThumb(m.id);
+      updateProgress();
+    };
+    img.src = dataUrl;
+  });
+
+  // ── Push restored S3-5 values into S6 via syncLinks ──────────────────
+  // Setting el.value directly (above) doesn't fire input/change events,
+  // so the sync listeners never run. Manually propagate here after restore.
+  syncLinks.forEach(({ src, dsts }) => {
+    const srcEl = document.getElementById(src);
+    if (!srcEl || !srcEl.value) return;
+    dsts.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = srcEl.value;
+    });
+  });
+
+  updateProgress();
+}
+
+function confirmReset() {
+  if (confirm('Clear all your answers and start over? This cannot be undone.')) {
+    localStorage.removeItem(SAVE_KEY);
+    location.reload();
+  }
+}
+
+// ══════════════════════════════════════════════
+// DOWNLOAD — bake all answers into a snapshot
+// ══════════════════════════════════════════════
+function downloadWork() {
+  // Get student name for filename
+  const nameInput = document.querySelector('.meta-input');
+  const studentName = nameInput && nameInput.value.trim()
+    ? nameInput.value.trim().replace(/[^a-zA-Z0-9 _-]/g, '').replace(/\s+/g, '_')
+    : 'student';
+  const filename = `VSEPR_Worksheet_${studentName}.html`;
+
+  // Clone the full document HTML
+  const clone = document.documentElement.cloneNode(true);
+
+  // ── Bake text inputs (excluding readonly auto-fills) ──
+  const liveInputs = document.querySelectorAll('input[type="text"]:not([readonly]), input[type="text"].meta-input');
+  const cloneInputs = clone.querySelectorAll('input[type="text"]:not([readonly]), input[type="text"].meta-input');
+  liveInputs.forEach((el, i) => {
+    if (cloneInputs[i]) cloneInputs[i].setAttribute('value', el.value);
+  });
+
+  // Also bake readonly auto-fill inputs (they have live values from sync)
+  const liveReadonly = document.querySelectorAll('input[type="text"][readonly]');
+  const cloneReadonly = clone.querySelectorAll('input[type="text"][readonly]');
+  liveReadonly.forEach((el, i) => {
+    if (cloneReadonly[i]) cloneReadonly[i].setAttribute('value', el.value);
+  });
+
+  // ── Bake textareas ──
+  const liveTextareas = document.querySelectorAll('textarea');
+  const cloneTextareas = clone.querySelectorAll('textarea');
+  liveTextareas.forEach((el, i) => {
+    if (cloneTextareas[i]) cloneTextareas[i].textContent = el.value;
+  });
+
+  // ── Bake radio buttons ──
+  document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+    const name = el.name, val = el.value;
+    const cloneRadio = clone.querySelector(`input[type="radio"][name="${name}"][value="${val}"]`);
+    if (cloneRadio) cloneRadio.setAttribute('checked', 'checked');
+  });
+
+  // ── Bake canvas drawings as inline images ──
+  molecules.forEach(m => {
+    const canvas = document.getElementById('canvas-' + m.id);
+    const cloneCanvas = clone.querySelector('#canvas-' + m.id);
+    if (!canvas || !cloneCanvas) return;
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      img.setAttribute('data-mol', m.id);
+      img.style.display = 'block';
+      img.style.width = '100%';
+      img.style.height = canvas.height + 'px';
+      img.style.borderRadius = '4px';
+      cloneCanvas.replaceWith(img);
+    } catch(e) {}
+  });
+
+  // ── Strip the download/reset buttons and save indicator from the snapshot ──
+  clone.querySelector('.download-btn')?.remove();
+  clone.querySelector('.reset-btn')?.remove();
+  clone.querySelector('.import-btn')?.remove();
+  clone.querySelector('#importFileInput')?.remove();
+  clone.querySelector('.savefile-btn')?.remove();
+  clone.querySelector('.loadfile-btn')?.remove();
+  clone.querySelector('#loadProgressInput')?.remove();
+  clone.querySelector('.save-indicator')?.remove();
+
+  // ── Add a submission banner at the top ──
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:#00b8a0;color:#fff;text-align:center;padding:10px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;letter-spacing:0.05em;';
+  banner.textContent = `VSEPR Worksheet — Submitted by ${nameInput?.value.trim() || 'Student'} — ${new Date().toLocaleDateString()}`;
+  clone.querySelector('body').prepend(banner);
+
+  // ── Serialize and trigger download ──
+  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════
+// SAVE / LOAD PROGRESS (for Chromebooks & cross-device)
+// ══════════════════════════════════════════════════════
+
+// Save the full localStorage save object as a .json file.
+// Students save this to Google Drive and reload it next class.
+function saveProgressToFile() {
+  saveAll(); // make sure everything is current first
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw || raw === '{}') {
+    alert('Nothing to save yet — fill in some answers first.');
+    return;
+  }
+  const nameInput = document.querySelector('.meta-input');
+  const studentName = nameInput && nameInput.value.trim()
+    ? nameInput.value.trim().replace(/[^a-zA-Z0-9 _-]/g, '').replace(/\s+/g, '_')
+    : 'student';
+  const blob = new Blob([raw], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `VSEPR_Progress_${studentName}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Load a .json progress file back into localStorage and restore the page.
+// Handles Chromebooks wiping localStorage between sign-outs.
+function loadProgressFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch(err) {
+      alert('That file doesn\'t look like a valid progress save. Make sure you\'re loading a file that ends in .json downloaded from this worksheet.');
+      return;
+    }
+    // Validate it looks like our save data (should have at least one known key pattern)
+    const keys = Object.keys(data);
+    const looksValid = keys.some(k => k.startsWith('pos:') || k.startsWith('canvas:') || k.startsWith('radio:') || k.startsWith('meta:'));
+    if (!looksValid) {
+      alert('This file doesn\'t appear to be a VSEPR progress save. No answers were loaded.');
+      return;
+    }
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    // Reload so restoreAll() cleanly re-populates every field
+    location.reload();
+  };
+  reader.readAsText(file);
+}
+
+
+function importFromFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be chosen again if needed
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const html = e.target.result;
+    const parser = new DOMParser();
+    const oldDoc = parser.parseFromString(html, 'text/html');
+
+    let imported = 0;
+    let skipped  = 0;
+
+    // ── 1. Text inputs WITH an id ────────────────────────────────────────
+    // Submitted files bake values as value="" attributes via setAttribute,
+    // so getAttribute('value') is the reliable read path.
+    oldDoc.querySelectorAll('input[type="text"][id]').forEach(oldEl => {
+      const newEl = document.getElementById(oldEl.id);
+      if (!newEl) { skipped++; return; }
+      const val = oldEl.getAttribute('value') || '';
+      if (val) { newEl.value = val; imported++; }
+    });
+
+    // ── 2. Text inputs WITHOUT an id (positional match) ──────────────────
+    // e.g. S6 SO₂ / SF₄ student-fill rows — no id, matched by position.
+    const oldNoIdInputs = Array.from(oldDoc.querySelectorAll('input[type="text"]:not([id])'));
+    const newNoIdInputs = Array.from(document.querySelectorAll('input[type="text"]:not([id])'));
+    oldNoIdInputs.forEach((oldEl, i) => {
+      if (!newNoIdInputs[i]) { skipped++; return; }
+      const val = oldEl.getAttribute('value') || '';
+      if (val) { newNoIdInputs[i].value = val; imported++; }
+    });
+
+    // ── 3. Meta inputs (name / date / period) — positional ───────────────
+    const oldMeta = Array.from(oldDoc.querySelectorAll('.meta-input'));
+    const newMeta = Array.from(document.querySelectorAll('.meta-input'));
+    oldMeta.forEach((oldEl, i) => {
+      if (!newMeta[i]) return;
+      const val = oldEl.getAttribute('value') || '';
+      if (val) { newMeta[i].value = val; imported++; }
+    });
+
+    // ── 4. Textareas — positional ─────────────────────────────────────────
+    // Submitted files bake textarea content as textContent (el.textContent = val).
+    // .value won't work on a DOMParser result — textContent is correct.
+    const oldTAs = Array.from(oldDoc.querySelectorAll('textarea'));
+    const newTAs = Array.from(document.querySelectorAll('textarea'));
+    oldTAs.forEach((oldEl, i) => {
+      if (!newTAs[i]) { skipped++; return; }
+      const val = oldEl.textContent?.trim() || '';
+      if (val) { newTAs[i].value = val; imported++; }
+    });
+
+    // ── 5. Radio buttons — index-based per name group ─────────────────────
+    // Radios have no value attribute in this worksheet, so we match by
+    // position within each named group. Submitted files bake the checked
+    // radio via setAttribute('checked','checked').
+    const seenNames = new Set();
+    oldDoc.querySelectorAll('input[type="radio"]').forEach(oldEl => {
+      const name = oldEl.getAttribute('name');
+      if (!name || seenNames.has(name)) return; // process each group once
+      seenNames.add(name);
+      const oldGroup = Array.from(oldDoc.querySelectorAll(`input[type="radio"][name="${name}"]`));
+      const checkedIdx = oldGroup.findIndex(r => r.hasAttribute('checked'));
+      if (checkedIdx === -1) return;
+      const newGroup = Array.from(document.querySelectorAll(`input[type="radio"][name="${name}"]`));
+      if (newGroup[checkedIdx]) { newGroup[checkedIdx].checked = true; imported++; }
+    });
+
+    // ── 6. Rank list (Q2.5 drag-to-rank) — match items by text, reorder ──
+    const oldRankList = oldDoc.getElementById('rankList');
+    const newRankList = document.getElementById('rankList');
+    if (oldRankList && newRankList) {
+      const clean = el => el.textContent.replace(/[⠿\d]/g,'').trim().toLowerCase();
+      const oldItems = Array.from(oldRankList.querySelectorAll('.rank-item'));
+      const newItems = Array.from(newRankList.querySelectorAll('.rank-item'));
+      const ordered = oldItems.map(o => newItems.find(n => clean(n) === clean(o))).filter(Boolean);
+      if (ordered.length === newItems.length) {
+        ordered.forEach(item => newRankList.appendChild(item));
+        imported++;
+      }
+    }
+
+    // ── 7. Canvas drawings — async, must finish before saveAll ───────────
+    // Submitted files replace <canvas> with <img data-mol="id" src="data:...">.
+    // We load each image, draw it onto the live canvas, then when ALL are
+    // done we call saveAll() so the canvas dataURLs land in localStorage.
+    const canvasImgs = Array.from(oldDoc.querySelectorAll('img[data-mol]'))
+      .filter(img => (img.getAttribute('src') || '').startsWith('data:image'));
+
+    const canvasPromises = canvasImgs.map(img => new Promise(resolve => {
+      const molId = img.getAttribute('data-mol');
+      const canvas = document.getElementById('canvas-' + molId);
+      if (!canvas) { skipped++; resolve(0); return; }
+      const image = new Image();
+      image.onload = () => {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve(1); // 1 canvas imported
+      };
+      image.onerror = () => resolve(0);
+      image.src = img.getAttribute('src');
+    }));
+
+    // ── 8. After all canvases are painted, save and confirm ───────────────
+    Promise.all(canvasPromises).then(canvasResults => {
+      const canvasCount = canvasResults.reduce((s, v) => s + v, 0);
+      saveAll(); // now includes freshly-drawn canvas data
+      const total = imported + canvasCount;
+      const msg = `✓ Imported ${total} answer${total !== 1 ? 's' : ''}` +
+        (canvasCount ? ` (including ${canvasCount} drawing${canvasCount !== 1 ? 's' : ''})` : '') +
+        ' from your previous submission.' +
+        (skipped ? `\n${skipped} field${skipped !== 1 ? 's' : ''} were skipped (not in this version).` : '') +
+        '\n\nYour work has been saved. Continue from where you left off.';
+      alert(msg);
+    });
+  };
+  reader.readAsText(file);
+}
+
+// Attach autosave to all input events
+document.addEventListener('input', saveAll);
+document.addEventListener('change', saveAll);
+
+// Canvas draws also trigger save (hook into endDraw)
+const _origEndDraw = endDraw;
+endDraw = function(id) { _origEndDraw(id); saveAll(); };
+
+// ── Chromebook banner ──────────────────────────────────────────────────────
+// Show when there is no saved data in localStorage (e.g. after Chromebook
+// signs out and wipes the session). Dismissed when user loads a file or
+// explicitly clicks "Starting Fresh".
+function showBanner() {
+  document.getElementById('chromebookBanner').classList.add('visible');
+}
+function dismissBanner() {
+  document.getElementById('chromebookBanner').classList.remove('visible');
+}
+
+// ── beforeunload warning ───────────────────────────────────────────────────
+// Remind students to save their progress file before closing the tab.
+// Only fires if there is actually saved data worth keeping.
+window.addEventListener('beforeunload', function(e) {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw || raw === '{}') return; // nothing to warn about
+  // Modern browsers show a generic message; the string below is a fallback.
+  e.preventDefault();
+  e.returnValue = 'Before you close: did you save your progress file (⬇ Save Progress) to Google Drive? Your work may not be here next time on a school Chromebook.';
+});
+
+// Restore on load
+restoreAll();
+
+// Show banner if nothing was restored from localStorage
+(function checkForSavedData() {
+  let data;
+  try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch(e) {}
+  const hasData = data && Object.keys(data).some(k =>
+    k.startsWith('pos:') || k.startsWith('canvas:') || k.startsWith('radio:') || k.startsWith('meta:') || k.length > 3
+  );
+  if (!hasData) showBanner();
+})();
+</script>
+<!-- ══════════ LEWIS GUIDE SIDE DRAWER ══════════ -->
+<button class="guide-drawer-tab" id="guideTab" onclick="toggleGuideDrawer()" title="Lewis Structure Guide">
+  <span class="tab-icon">📋</span>
+  <span class="tab-label">Guide</span>
+</button>
+
+<div class="guide-drawer" id="guideDrawer">
+  <div class="guide-drawer-header">
+    <span class="guide-drawer-title">How to Draw a Lewis Structure</span>
+    <button class="guide-drawer-close" onclick="toggleGuideDrawer()" title="Close guide">✕</button>
+  </div>
+  <div class="guide-drawer-scroll">
+
+    <div class="step-row">
+      <div class="step-circle">1</div>
+      <div class="step-content">
+        <div class="step-title">Count Total Valence Electrons</div>
+        <div class="step-detail">Add valence electrons for every atom. Use the group number from the periodic table — the <em>A-group number equals valence electrons</em>:<br>
+          Group 1A = 1 e⁻ &nbsp;·&nbsp; Group 2A = 2 e⁻<br>
+          Group 3A = 3 e⁻ &nbsp;·&nbsp; Group 4A = 4 e⁻<br>
+          Group 5A = 5 e⁻ &nbsp;·&nbsp; Group 6A = 6 e⁻ &nbsp;·&nbsp; Group 7A = 7 e⁻
+        </div>
+      </div>
+    </div>
+    <div class="step-divider"></div>
+
+    <div class="step-row">
+      <div class="step-circle">2</div>
+      <div class="step-content">
+        <div class="step-title">Identify the Central Atom</div>
+        <div class="step-detail">Usually the atom there is only <em>one of</em>, or the least electronegative. Carbon always goes in the middle — hydrogen <strong>never</strong> goes in the middle.</div>
+      </div>
+    </div>
+    <div class="step-divider"></div>
+
+    <div class="step-row">
+      <div class="step-circle">3</div>
+      <div class="step-content">
+        <div class="step-title">Connect Atoms with Single Bonds</div>
+        <div class="step-detail">Place outer atoms around the central atom and connect each with one bond (= 2 electrons). Subtract those from your total.</div>
+      </div>
+    </div>
+    <div class="step-divider"></div>
+
+    <div class="step-row">
+      <div class="step-circle">4</div>
+      <div class="step-content">
+        <div class="step-title">Distribute Remaining Electrons</div>
+        <div class="step-detail">Add lone pairs to <em>outer atoms first</em> to satisfy octets (H only needs 2). Use any leftover electrons on the central atom.</div>
+      </div>
+    </div>
+    <div class="step-divider"></div>
+
+    <div class="step-row">
+      <div class="step-circle">5</div>
+      <div class="step-content">
+        <div class="step-title">Check for Double / Triple Bonds</div>
+        <div class="step-detail">Does every atom have a full octet? If the central atom is short, move a lone pair from a neighbor to form a <strong>double bond</strong>. <em>Never add new electrons.</em></div>
+      </div>
+    </div>
+
+    <div class="ls-note"><strong>Drawing tip:</strong> Draw bonds as lines and lone pairs as dots or small circles. Color-code to tell them apart. Tap ↩️ to undo a stroke.</div>
+
+    <div class="ls-note" style="background:#f3eeff; color:#3b2470; border-left:3px solid var(--purple); border-radius:0 6px 6px 0; padding:10px 12px; font-size:12px; line-height:1.6;">
+      <strong>⚠ Octet rule exceptions</strong> — only ever on the <strong>central atom</strong>. Outer atoms always obey the octet rule.<br><br>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;background:rgba(245,166,35,0.15);border:1px solid var(--amber);color:#8a5a00;padding:1px 6px;border-radius:3px;display:inline-block;margin-bottom:4px;">BF₃ — Incomplete Octet</span><br>
+      Boron (Group 3A) forms 3 bonds = only 6 electrons. This is stable — <em>do not</em> add a double bond.<br><br>
+      <span style="font-family:'DM Mono',monospace;font-size:10px;background:rgba(124,92,191,0.13);border:1px solid var(--purple);color:var(--purple);padding:1px 6px;border-radius:3px;display:inline-block;margin-bottom:4px;">PCl₅, SF₆, ClF₃, BrF₅, XeF₄ — Expanded Octet</span><br>
+      Period 3 and beyond (P, S, Cl, Br, Xe) have d orbitals available and can hold more than 8 electrons. Just connect all outer atoms with single bonds — exceeding 8 is correct here.
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
