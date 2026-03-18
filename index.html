@@ -45,6 +45,11 @@
   .download-btn:hover { background:#009e8a; }
   .import-btn { background:none; border:1px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.6); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
   .import-btn:hover { border-color:rgba(0,184,160,0.7); color:var(--teal); }
+  .vsepr-print-wrap { position:relative; display:inline-flex; align-self:center; }
+  .vsepr-print-menu { display:none; position:absolute; top:100%; right:0; background:#1a2f4a; border:1px solid rgba(255,255,255,0.15); border-radius:5px; box-shadow:0 4px 14px rgba(0,0,0,.35); min-width:210px; z-index:300; overflow:hidden; margin-top:4px; }
+  .vsepr-print-menu.open { display:block; }
+  .vsepr-print-menu button { display:block; width:100%; text-align:left; background:none; border:none; padding:9px 14px; font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; color:rgba(255,255,255,0.8); }
+  .vsepr-print-menu button:hover { background:rgba(0,184,160,0.15); color:var(--teal); }
   .savefile-btn { background:none; border:1px solid rgba(0,184,160,0.5); color:var(--teal); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; border-radius:4px; cursor:pointer; white-space:nowrap; transition:all 0.2s; align-self:center; }
   .savefile-btn:hover { background:rgba(0,184,160,0.15); border-color:var(--teal); }
 
@@ -478,13 +483,17 @@
         <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
         <span class="save-indicator" id="saveIndicator">💾 Saved</span>
       </div>
+      <button class="download-btn" onclick="downloadWork()" title="Download your completed worksheet for submission">⬇ Submit Work</button>
+      <button class="savefile-btn" onclick="saveProgressToFile()" title="Save progress to a .json file — save to Google Drive to continue on another device">⬇ Save Progress</button>
+      <label class="loadfile-btn" style="cursor:pointer" title="Load a .json progress file or a previously submitted .html file">⬆ Load Progress<input type="file" accept=".json,.html" style="display:none" onchange="loadAny(this)"/></label>
+      <div class="vsepr-print-wrap">
+        <button class="import-btn" onclick="togglePrintMenu(this)">🖨 Print ▾</button>
+        <div class="vsepr-print-menu" id="vseprPrintMenu">
+          <button onclick="printCompleted();closePrintMenu()">Print completed worksheet</button>
+          <button onclick="printBlank();closePrintMenu()">Print blank worksheet</button>
+        </div>
+      </div>
       <button class="reset-btn" onclick="confirmReset()" title="Clear all answers and start over">↺ Reset</button>
-      <button class="loadfile-btn" onclick="document.getElementById('loadProgressInput').click()" title="Load progress from a save file — use this on Chromebooks to restore your work from a previous session">⬆ Load Progress</button>
-      <input type="file" id="loadProgressInput" accept=".json" style="display:none" onchange="loadProgressFromFile(this)"/>
-      <button class="savefile-btn" onclick="saveProgressToFile()" title="Save your progress to a file — save it to Google Drive so you can load it next class">⬇ Save Progress</button>
-      <button class="import-btn" onclick="document.getElementById('importFileInput').click()" title="Import answers from a previously submitted worksheet">⬆ Import Previous</button>
-      <input type="file" id="importFileInput" accept=".html" style="display:none" onchange="importFromFile(this)"/>
-      <button class="download-btn" onclick="downloadWork()" title="Download your completed worksheet">⬇ Submit Work</button>
     </div>
   </div>
 </header>
@@ -1590,6 +1599,7 @@ function downloadWork() {
   clone.querySelector('.reset-btn')?.remove();
   clone.querySelector('.import-btn')?.remove();
   clone.querySelector('#importFileInput')?.remove();
+  clone.querySelector('.vsepr-print-wrap')?.remove();
   clone.querySelector('.savefile-btn')?.remove();
   clone.querySelector('.loadfile-btn')?.remove();
   clone.querySelector('#loadProgressInput')?.remove();
@@ -1789,6 +1799,66 @@ function importFromFile(input) {
     });
   };
   reader.readAsText(file);
+}
+
+// ── UNIFIED LOAD (accepts .json progress OR .html submission) ──
+function loadAny(input) {
+  const file = input.files[0]; if(!file)return;
+  input.value='';
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(ext==='json'){
+    // Same as loadProgressFromFile
+    const r=new FileReader();
+    r.onload=function(e){
+      let data;
+      try{data=JSON.parse(e.target.result);}catch(err){alert('Invalid progress file.');return;}
+      const keys=Object.keys(data);
+      const looksValid=keys.some(k=>k.startsWith('pos:')||k.startsWith('canvas:')||k.startsWith('radio:')||k.startsWith('meta:'));
+      if(!looksValid){alert('This file doesn\'t appear to be a VSEPR progress save.');return;}
+      localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+      location.reload();
+    };
+    r.readAsText(file);
+  } else if(ext==='html'){
+    importFromFile({files:[file],value:''});
+  } else {
+    alert('Please select a .json progress file or a .html submission file.');
+  }
+}
+
+// ── PRINT MENU ──
+function togglePrintMenu(btn){
+  const m=document.getElementById('vseprPrintMenu');
+  m.classList.toggle('open');
+  if(m.classList.contains('open')){
+    setTimeout(()=>document.addEventListener('click',closePrintMenuOutside,{once:true}),0);
+  }
+}
+function closePrintMenu(){document.getElementById('vseprPrintMenu')?.classList.remove('open');}
+function closePrintMenuOutside(e){if(!e.target.closest('.vsepr-print-wrap'))closePrintMenu();}
+
+function printCompleted(){
+  window.print();
+}
+
+function printBlank(){
+  // Clone, clear all student answers, then print
+  const clone=document.documentElement.cloneNode(true);
+  clone.querySelectorAll('input[type="text"]:not([readonly])').forEach(el=>{el.setAttribute('value','');el.removeAttribute('value');});
+  clone.querySelectorAll('textarea').forEach(el=>{el.textContent='';});
+  clone.querySelectorAll('input[type="radio"]').forEach(el=>el.removeAttribute('checked'));
+  clone.querySelectorAll('.download-btn,.savefile-btn,.loadfile-btn,.import-btn,.reset-btn,.vsepr-print-wrap,#chromebookBanner,.save-indicator').forEach(el=>el.remove());
+  clone.querySelectorAll('script').forEach(el=>el.remove());
+  clone.querySelectorAll('.sec').forEach(el=>el.classList.remove('coll'));
+  const ps=clone.ownerDocument.createElement('style');
+  ps.textContent='@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}.tool-panel{display:none!important}.worksheet-panel{padding-right:0!important}}';
+  clone.querySelector('head').appendChild(ps);
+  const ps2=clone.ownerDocument.createElement('script');
+  ps2.textContent='window.onload=function(){window.print();}';
+  clone.querySelector('body').appendChild(ps2);
+  const blob=new Blob(['<!DOCTYPE html>'+String.fromCharCode(10)+clone.outerHTML],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.target='_blank';a.rel='noopener';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
 // Attach autosave to all input events
